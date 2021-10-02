@@ -1,0 +1,24 @@
+﻿<div class="error_card_container">
+    <div>
+        <BaseCard>
+            <MatIcon Class="error_icon" Icon="sentiment_very_dissatisfied"></MatIcon>
+            @ChildContent
+        </BaseCard>
+    </div>
+</div>
+
+<style>
+    .error_icon {
+        text-align: center;
+    }
+
+    .error_card_container {
+        justify-content: center;
+        display: flex;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

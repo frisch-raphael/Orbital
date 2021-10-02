@@ -1,0 +1,74 @@
+<MatDialog @bind-IsOpen="@IsSpellsDialogOpen">
+    <MatDialogTitle>@SpellType.Analysis.ToString()</MatDialogTitle>
+    <MatDialogContent>
+        <div class="mat-layout-grid">
+            <div class="mat-layout-grid-inner">
+                @foreach (var spell in OrbitalSpells)
+                {
+                    <div class="mat-layout-grid-cell">
+
+                        <BaseCard Title="@spell.Title" ImageUrl="@spell.Image">@spell.Description</BaseCard>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick="@(e => { CloseSpellsDialog.InvokeAsync(); })">Close</MatButton>
+    </MatDialogActions>
+</MatDialog>
+
+<style>
+    .mdc-dialog__container {
+        min-width: 90%;
+    }
+
+    .mdc-dialog .mdc-dialog__surface {
+        max-height: 80%;
+        background-color: white;
+        max-width: none;
+        min-width: 85%;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public EventCallback<bool> CloseSpellsDialog { get; set; }
+
+    [Parameter]
+    public bool IsSpellsDialogOpen { get; set; }
+
+    private readonly List<OrbitalSpells> OrbitalSpells = new List<OrbitalSpells>(){
+
+    new OrbitalSpells(
+    title: "Simple scan",
+    spellUrl: "Scan",
+    description: "Scan a payload with a single antivirus",
+    image: "images/simple_scan.png",
+    spellType: SpellType.Analysis),
+
+    new OrbitalSpells(
+    title: "KindaVirusTotal offline scan",
+    spellUrl: "Scan",
+    description: "Scan a payload with every supported antiviruses",
+    image: "images/offline_virustotal.png",
+    spellType: SpellType.Analysis),
+
+    new OrbitalSpells(
+    title: "Dissect scan",
+    spellUrl: "Dissect",
+    description: "Statically analyse every functions of a payload separatly, and returns which ones are flagged, and which ones are healthy",
+    image: "images/dissect.png",
+    spellType: SpellType.Analysis),
+
+    new OrbitalSpells(
+    title: "Dissect",
+    spellUrl: "Dissect",
+    description: "Statically analyse every functions of a payload separatly, and returns which ones are flagged, and which ones are healthy",
+    image: "images/dissect.png",
+    spellType: SpellType.Analysis),
+    };
+
+
+}

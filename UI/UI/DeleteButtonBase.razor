@@ -1,0 +1,15 @@
+﻿<MatIconButton Style="color:indianred" OnClick="@CallParentDeleteMethod" Icon="delete_outline"></MatIconButton>
+
+@code
+{
+    [Parameter]
+    public EventCallback<string> ParentDeleteMethod { get; set; }
+
+    private async Task CallParentDeleteMethod()
+    {
+        if (ParentDeleteMethod.HasDelegate)
+        {
+            await ParentDeleteMethod.InvokeAsync();
+        }
+    }
+ }

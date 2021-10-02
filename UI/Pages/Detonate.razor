@@ -1,0 +1,33 @@
+﻿@page "/"
+@using System.IO;
+@using Shared.Config
+@using Ui.Services;
+@using Microsoft.Extensions.Logging;
+@inject FileUploader FileUploader;
+@inject IMatToaster Toaster;
+
+
+<MatFileUpload OnChange="@OnInputFileChange" Label="Upload your payload to start the analysis"></MatFileUpload>
+
+@code
+{
+    private async Task OnInputFileChange(IMatFileUploadEntry[] files)
+    {
+
+        var file = files.FirstOrDefault();
+        if (file == null) return;
+        MemoryStream memoryStream = new MemoryStream();
+        await file.WriteToStreamAsync(memoryStream);
+        HttpContent content = new ByteArrayContent(memoryStream.GetBuffer());
+
+
+        string endpoint = "Payloads/";
+
+        await FileUploader.UploadFile(
+            content,
+            file.Name,
+            endpoint
+        );
+
+    }
+}

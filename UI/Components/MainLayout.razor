@@ -1,0 +1,57 @@
+﻿@inherits LayoutComponentBase
+
+<MatToastContainer />
+<MatThemeProvider Theme="najinTheme">
+    <MatAppBarContainer>
+        <MatAppBar Fixed="true" Style="z-index:100;">
+            <MatAppBarRow>
+                <MatAppBarSection>
+                    <MatIconButton Icon="menu" OnClick="MenuSwitchHandler"></MatIconButton>
+                    <MatAppBarTitle>NajiN - Test your payloads stealthiness</MatAppBarTitle>
+                </MatAppBarSection>
+            </MatAppBarRow>
+        </MatAppBar>
+
+        <MatAppBarContent>
+            <MatDrawerContainer DrawerWidth="12rem" Style="width: 100vw; height: 100vh;">
+                <MatDrawer Class="menu_drawer" @bind-Opened="@isMenuOpen">
+                    <TheMenu></TheMenu>
+                </MatDrawer>
+                <MatDrawerContent Style="padding:1rem">
+                    @Body
+                </MatDrawerContent>
+            </MatDrawerContainer>
+        </MatAppBarContent>
+    </MatAppBarContainer>
+</MatThemeProvider>
+
+<style>
+    .menu_drawer {
+        border-right-color: grey;
+        border-right-width: 2px;
+        background-color: azure;
+    }
+</style>
+
+@code
+{
+
+    MatTheme najinTheme = new MatTheme()
+    {
+        Primary = "#6793b8",
+        OnPrimary = "#004d40",
+        Secondary = "#bbdefb",
+        OnSecondary = "#004d40",
+        Surface = "#eeffff",
+        OnSurface = "#004d40"
+    };
+
+    private void MenuSwitchHandler()
+    {
+        this.isMenuOpen = !isMenuOpen;
+    }
+
+    public bool isMenuOpen = true;
+
+}
+

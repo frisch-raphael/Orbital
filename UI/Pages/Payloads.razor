@@ -1,0 +1,32 @@
+﻿@page "/payloads"
+
+<MatTabGroup>
+    @foreach (var tab in Tabs)
+    {
+        <MatTab Label="@tab.Label">
+            <MatList>
+                @if (!tab.PayloadsToDisplay.Any())
+                {
+                    <ErrorCard>No @tab.Label uploaded yet</ErrorCard>
+                }
+                @foreach (var payload in tab.PayloadsToDisplay)
+                {
+
+                    <MatRipple>
+                        <MatListItem>
+                            <DeletePayloadButton IdOfPayloadToRemove="payload.Id" @bind-PayloadList="tab.PayloadsToDisplay">
+                            </DeletePayloadButton>
+                            <MatIconButton Icon="offline_bolt" OnClick="(e) => { IsSpellsDialogOpen = true; }"></MatIconButton>
+                            @payload.FileName (@payload.Hash)
+                        </MatListItem>
+                    </MatRipple>
+
+                    <MatListDivider></MatListDivider>
+                }
+            </MatList>
+        </MatTab>
+    }
+</MatTabGroup>
+<SpellsDialog IsSpellsDialogOpen="IsSpellsDialogOpen" CloseSpellsDialog="@CloseSpellDialog"></SpellsDialog>
+
+

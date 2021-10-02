@@ -1,0 +1,13 @@
+﻿
+.base-card {
+    width: 30rem;
+}
+
+
+.base-card-title {
+    padding: 0.5rem;
+}
+
+.base-card-content {
+    padding: 1rem;
+}

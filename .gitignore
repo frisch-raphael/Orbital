@@ -1,0 +1,8 @@
+.vs
+.vshistory
+**/x64/**
+**/debug/**
+**/Release/**
+Orbital/Uploads/**
+Orbital/Migrations/**
+**/obj/**

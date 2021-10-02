@@ -1,0 +1,38 @@
+﻿@using Shared.Dtos
+@using Ui.Services
+@inject RodinHttpClient RodinHttpClient
+<DeleteButtonBase ParentDeleteMethod="@DeletePayload"></DeleteButtonBase>
+
+@code {
+
+    [Inject]
+
+    private IMatToaster Toaster { get; set; }
+
+    [Parameter]
+    public List<Payload> PayloadList { get; set; }
+
+    [Parameter]
+    public EventCallback<List<Payload>> PayloadListChanged { get; set; }
+
+    [Parameter]
+    public int IdOfPayloadToRemove { get; set; }
+
+
+
+    private async Task DeletePayload()
+    {
+        var client = RodinHttpClient.Client;
+        var endpoint = "Payloads/" + IdOfPayloadToRemove;
+        var response = await client.DeleteAsync(endpoint);
+        if (!response.IsSuccessStatusCode)
+        {
+            await RodinHttpClient.ShowAndLogError(response);
+            return;
+        }
+        Toaster.Add("Payload was deleted", MatToastType.Success);
+        PayloadList.RemoveAll(p => p.Id == IdOfPayloadToRemove);
+        await PayloadListChanged.InvokeAsync(PayloadList);
+    }
+
+}

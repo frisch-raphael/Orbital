@@ -1,0 +1,20 @@
+{
+  "SharedOptions": {
+
+    "RodinOptions": {
+      "Https": true,
+      "Domain": "localhost",
+      "Port": 333
+    },
+    "HammerOptions": {
+      "Https": true,
+      "Domain": "localhost",
+      "Port": 334
+    },
+    "DetonatorOptions": {
+      "Https": true,
+      "Domain": "localhost",
+      "Port": 335
+    }
+  }
+}

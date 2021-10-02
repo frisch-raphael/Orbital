@@ -1,0 +1,40 @@
+﻿<MatNavMenu>
+
+    <MatNavItem>
+        <MatButtonLink Class="link_menu" Href="/" Icon="new_releases">
+            <span class="link_menu">Detonate</span>
+        </MatButtonLink>
+    </MatNavItem>
+    <MatNavItem>
+        <MatButtonLink Class="link_menu" Href="/environment" Icon="desktop_windows">
+            <span class="link_menu">Environments</span>
+        </MatButtonLink>
+    </MatNavItem>
+    <MatNavItem>
+        <MatButtonLink Class="link_menu" Href="/payloads" Icon="file_copy">
+            <span class="link_menu">Payloads</span>
+        </MatButtonLink>
+    </MatNavItem>
+    <MatNavItem>
+        <MatButtonLink Class="link_menu" Href="/obfuscate" Icon="cloud_queue">
+            <span class="link_menu">Obfuscate</span>
+        </MatButtonLink>
+    </MatNavItem>
+</MatNavMenu>
+
+<style>
+    .link_menu {
+        color: black;
+    }
+
+</style>
+
+@code
+{
+
+    [Parameter]
+    public bool isMenuOpen { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

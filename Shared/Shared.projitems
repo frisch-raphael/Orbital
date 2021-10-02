@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>ff457d73-3636-441a-a508-f42e8090a488</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Config\Config.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ScanPost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ScanResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\SupportedAntivirus.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\PayloadType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ApiErrors\ApiError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ApiErrors\BadRequestError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ApiErrors\InternalServerError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ApiErrors\NotFoundError.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\Function.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\HttpVerb.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\Payload.cs" />
+    <Compile Include="..\Shared\Dtos\ControllerResponses\MultiScanControllerResponse.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Static\JsonHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Static\FileUploadConfig.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="$(MSBuildThisFileDirectory)Config\config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Dtos\ControllerResponses\" />
+  </ItemGroup>
+</Project>
