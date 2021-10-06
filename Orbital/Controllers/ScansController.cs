@@ -19,6 +19,8 @@ using Rodin.Static;
 using Shared.ControllerResponses.Dtos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
+using Orbital.Classes;
 
 namespace Orbital.Controllers
 {
@@ -30,18 +32,20 @@ namespace Orbital.Controllers
         private AntivirusClientFactory AntivirusClientFactory;
         private readonly OrbitalContext OrbitalContext;
         private readonly IServiceScopeFactory ServiceScopeFactory;
+        private readonly IHubContext<NotificationHub> HubContext;
 
         private ILogger<ScansController> Logger { get; }
 
         public ScansController(
             AntivirusClientFactory antiviruClientFactory,
             ILogger<ScansController> logger,
-            OrbitalContext orbitalContext, IServiceScopeFactory serviceScopeFactory)
+            OrbitalContext orbitalContext, IServiceScopeFactory serviceScopeFactory, IHubContext<NotificationHub> hubContext)
         {
             AntivirusClientFactory = antiviruClientFactory;
             Logger = logger;
             OrbitalContext = orbitalContext;
             ServiceScopeFactory = serviceScopeFactory;
+            HubContext = hubContext;
         }
 
 
@@ -82,10 +86,10 @@ namespace Orbital.Controllers
                     ScanDate = DateTime.Now
                 };
 
-                var resultEntity = OrbitalContext.ScanResults.Add(initialResult);
+                var resultEntity = orbitalContext.ScanResults.Add(initialResult);
                 initialResult.Id = resultEntity.Entity.Id;
                 initialResults.Add(initialResult);
-                orbitalContext.SaveChanges();
+                await orbitalContext.SaveChangesAsync();
 
 
                 try
@@ -94,16 +98,18 @@ namespace Orbital.Controllers
                     // This controler only takes one payload so only one result
                     resultEntity.Entity.IsFlagged = result[0].IsFlagged;
                     resultEntity.Entity.isDone = true;
-                    orbitalContext.SaveChanges();
-
-
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Scanning with {Antivirus} failed : {ErrorMessage}", supportedAntivirus, ex.Message);
                     resultEntity.Entity.isError = true;
-                    orbitalContext.SaveChanges();
                 }
+
+                await orbitalContext.SaveChangesAsync();
+                await HubContext.Clients.All.SendAsync(
+                    "scan_done",
+                    new ScanResultWSMessage { Payload = payload, ScanResult = resultEntity.Entity });
+
             });
 
             var resourcePath = new Uri($"{Request.Scheme}://{Request.Host}/");

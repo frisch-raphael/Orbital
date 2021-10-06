@@ -14,6 +14,9 @@ using Orbital.Services;
 using Shared.Api.ApiErrors;
 using Microsoft.EntityFrameworkCore;
 using Orbital.Services.Antivirus;
+using System.Net.WebSockets;
+using System.Net;
+using Orbital.Classes;
 
 namespace Orbital
 {
@@ -31,6 +34,15 @@ namespace Orbital
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+                })
+            );
+
+            services.AddSignalR();
+
             services.AddControllers()
                 .AddNewtonsoftJson(options =>
                 {
@@ -98,6 +110,8 @@ namespace Orbital
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, OrbitalContext orbitalContext)
         {
+            app.UseWebSockets();
+
             app.UseStatusCodePagesWithReExecute("/error/{0}");
             app.UseExceptionHandler("/error");
 
@@ -125,6 +139,14 @@ namespace Orbital
             });
 
             orbitalContext.Database.EnsureCreated();
+
+            app.UseCors("CorsPolicy");
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<NotificationHub>("/scan_notifications");
+                endpoints.MapControllers();
+            });
         }
 
         private BadRequestObjectResult CustomErrorResponse(ActionContext actionContext)

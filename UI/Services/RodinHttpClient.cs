@@ -19,7 +19,7 @@ namespace Ui.Services
     public class RodinHttpClient
     {
         public readonly HttpClient Client;
-        private readonly RodinOptions RodinOptions;
+        private readonly OrbitalOptions OrbitalOptions;
         private ILogger<FileUploader> Logger { get; set; }
         private IMatToaster Toaster { get; set; }
 
@@ -29,9 +29,9 @@ namespace Ui.Services
             IMatToaster toaster)
         {
 
-            RodinOptions = sharedOptions.Value.rodinOptions;
+            OrbitalOptions = sharedOptions.Value.orbitalOptions;
             Client = client;
-            Client.BaseAddress = new Uri(RodinOptions.BaseAddress + "api/");
+            Client.BaseAddress = new Uri(OrbitalOptions.BaseAddress + "api/");
             Logger = logger;
             Toaster = toaster;
         }

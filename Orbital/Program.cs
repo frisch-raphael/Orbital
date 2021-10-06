@@ -23,7 +23,7 @@ namespace Orbital
             return Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseUrls(SharedConfigRoot.SharedOptions.rodinOptions.BaseAddress.AbsoluteUri);
+                    webBuilder.UseUrls(SharedConfigRoot.SharedOptions.orbitalOptions.BaseAddress.AbsoluteUri);
                     webBuilder.UseStartup<Startup>();
                 });
         }

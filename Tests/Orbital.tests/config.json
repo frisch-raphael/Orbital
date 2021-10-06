@@ -4,17 +4,17 @@
     "RodinOptions": {
       "Https": true,
       "Domain": "localhost",
-      "Port": 3333
+      "Port": 333
     },
     "HammerOptions": {
       "Https": true,
       "Domain": "localhost",
-      "Port": 3334
+      "Port": 334
     },
     "DetonatorOptions": {
       "Https": true,
       "Domain": "localhost",
-      "Port": 3335
+      "Port": 335
     }
   }
 }

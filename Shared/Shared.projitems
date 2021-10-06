@@ -10,8 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Config\Config.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ScanPost.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\ScanPost.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ScanResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\WebSocketMessages\ScanResultWSMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\SupportedAntivirus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\PayloadType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ApiErrors\ApiError.cs" />
@@ -21,7 +22,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\Function.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\HttpVerb.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\Payload.cs" />
-    <Compile Include="..\Shared\Dtos\ControllerResponses\MultiScanControllerResponse.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Static\JsonHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Static\FileUploadConfig.cs" />
   </ItemGroup>
@@ -34,5 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Dtos\ControllerResponses\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\" />
   </ItemGroup>
 </Project>

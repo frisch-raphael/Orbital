@@ -7,7 +7,7 @@ namespace Shared.Config
         public SharedOptions SharedOptions { get; set; }
     }
 
-    public class RodinOptions : DomainOptions
+    public class OrbitalOptions : DomainOptions
     {
     }
 
@@ -22,7 +22,7 @@ namespace Shared.Config
     public class SharedOptions
     {
         public const string SharedKey = "SharedOptions";
-        public RodinOptions rodinOptions { get; set; }
+        public OrbitalOptions orbitalOptions { get; set; }
         public DetonatorOptions detonatorOptions { get; set; }
         public HammerOptions hammerOptions { get; set; }
     }

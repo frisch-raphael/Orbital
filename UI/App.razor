@@ -1,4 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.Extensions.Options
+@using Shared.Config
+@using Shared.ControllerResponses.Dtos
+@using Shared.Dtos
 
 <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
     <Found Context="routeData">
@@ -21,4 +26,78 @@
 
 </style>
 
+@code
+{
 
+    protected override async Task OnInitializedAsync()
+    {
+        await ConnectToScanNotifications();
+    }
+
+    [Inject]
+    private IMatToaster Toaster { get; set; }
+
+    [Inject]
+    private IOptions<SharedOptions> SharedOptions { get; set; }
+
+    private HubConnection HubConnection { get; set; }
+
+    private async Task ConnectToScanNotifications()
+    {
+        HubConnection = new HubConnectionBuilder()
+            .WithUrl(SharedOptions.Value.orbitalOptions.BaseAddress + "scan_notifications")
+            .Build();
+
+        await HubConnection.StartAsync();
+
+        HubConnection.Closed += async (s) =>
+        {
+            await HubConnection.StartAsync();
+        };
+
+        HubConnection.On<ScanResultWSMessage>("scan_done", wsMessage =>
+        {
+            DisplayScanResult(wsMessage);
+
+        });
+    }
+
+    private void DisplayScanResult(ScanResultWSMessage wsMessage)
+    {
+        if (wsMessage.ScanResult.isError)
+        {
+            DisplayError(wsMessage);
+        }
+        else if (wsMessage.ScanResult.IsFlagged)
+        {
+            DisplayHealtyPayload(wsMessage);
+        }
+        else
+        {
+            DisplayFlaggedPayload(wsMessage);
+        }
+    }
+
+    private void DisplayError(ScanResultWSMessage wsMessage)
+    {
+        Toaster.Add($"{wsMessage.ScanResult.Antivirus} scan for {wsMessage.Payload.FileName} failed.", MatToastType.Danger, "Scan failed");
+    }
+
+    private void DisplayHealtyPayload(ScanResultWSMessage wsMessage)
+    {
+        Toaster.Add(
+            $"{wsMessage.ScanResult.Antivirus} reported {wsMessage.Payload.FileName} as flagged. ",
+            MatToastType.Danger,
+            "Scan finished",
+            "close");
+    }
+
+    private void DisplayFlaggedPayload(ScanResultWSMessage wsMessage)
+    {
+        Toaster.Add(
+            $"{wsMessage.ScanResult.Antivirus} reported {wsMessage.Payload.FileName} as healthy.",
+            MatToastType.Success,
+            "Scan finished",
+            "check");
+    }
+}
