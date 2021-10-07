@@ -1,0 +1,31 @@
+﻿@using Shared.Enums
+<MatDialog @bind-IsOpen="@IsSpellDialogOpen">
+    <MatDialogTitle>Configure </MatDialogTitle>
+    <MatDialogContent>
+
+
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick=@LaunchScan>Launch</MatButton>
+    </MatDialogActions>
+</MatDialog>
+
+@code {
+    [Parameter]
+    public bool IsSpellDialogOpen { get; set; }
+
+    public SupportedAntivirus ChosenAntivirus { get; set; }
+
+    [Parameter]
+    public OrbitalScan SpellToLaunch { get; set; }
+
+    [Parameter]
+    public EventCallback<List<SupportedAntivirus>> OnConfigured { get; set; }
+
+
+
+    private async Task LaunchScan()
+    {
+        await OnConfigured.InvokeAsync(new List<SupportedAntivirus> { ChosenAntivirus });
+    }
+}

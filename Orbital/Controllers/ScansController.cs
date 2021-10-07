@@ -94,6 +94,9 @@ namespace Orbital.Controllers
 
                 try
                 {
+                    await HubContext.Clients.All.SendAsync(
+                        Notifications.ScanStarted.ToString(),
+                        new ScanResultWSMessage { Payload = payload, ScanResult = resultEntity.Entity });
                     var result = await antivirusClient.Scan(new string[] { payload.StoragePath });
                     // This controler only takes one payload so only one result
                     resultEntity.Entity.IsFlagged = result[0].IsFlagged;
@@ -107,7 +110,7 @@ namespace Orbital.Controllers
 
                 await orbitalContext.SaveChangesAsync();
                 await HubContext.Clients.All.SendAsync(
-                    "scan_done",
+                    Notifications.ScanDone.ToString(),
                     new ScanResultWSMessage { Payload = payload, ScanResult = resultEntity.Entity });
 
             });

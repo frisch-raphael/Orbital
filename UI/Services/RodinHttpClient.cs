@@ -36,6 +36,7 @@ namespace Ui.Services
             Toaster = toaster;
         }
 
+
         public async Task ShowAndLogError(HttpResponseMessage httpErrorResponse)
         {
             ApiError errorResponse = await GetApiError(httpErrorResponse);

@@ -24,6 +24,8 @@ namespace Ui.Pages
 
         private bool IsSpellsDialogOpen { get; set; } = false;
 
+        private int SelectedPayloadId { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
             await SetTabsData();
@@ -35,7 +37,7 @@ namespace Ui.Pages
             var endpoint = "Payloads/";
             var payloads = new List<Payload>();
             var rodinClient = RodinHttpClient.Client;
-            HttpResponseMessage response = new HttpResponseMessage();
+            HttpResponseMessage response = new();
 
             try
             {
@@ -101,6 +103,12 @@ namespace Ui.Pages
         private void CloseSpellDialog()
         {
             IsSpellsDialogOpen = false;
+        }
+
+        private void OpenSpellDialog(int payloadId)
+        {
+            SelectedPayloadId = payloadId;
+            IsSpellsDialogOpen = true;
         }
     }
 

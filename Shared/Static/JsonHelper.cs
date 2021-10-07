@@ -5,6 +5,8 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace Shared.Static
 {
@@ -15,7 +17,12 @@ namespace Shared.Static
             var options = new JsonSerializerOptions();
             options.Converters.Add(new JsonStringEnumConverter());
             //var test = await JsonSerializer.DeserializeAsync<Object>(response);
-            return await JsonSerializer.DeserializeAsync<T>(response, options);
+            return await System.Text.Json.JsonSerializer.DeserializeAsync<T>(response, options);
+        }
+
+        public static StringContent SerializeAsync(object obj)
+        {
+            return new StringContent(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/json");
         }
     }
 }

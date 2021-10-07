@@ -39,17 +39,16 @@ namespace Orbital.Shared.Post
             var client = Factory.CreateClient();
 
 
-            var postData = new ScanPost()
+            var scanPost = new ScanPost()
             {
                 Antiviruses = GetAllSupportedAntiviruses(),
                 PayloadId = payloadId
             };
 
-            var postDataContent = new StringContent(JsonConvert.SerializeObject(postData), Encoding.UTF8, "application/json");
             // Act
             var response = await client.PostAsync(
                 "/api/Scans",
-                postDataContent);
+                JsonHelper.SerializeAsync(scanPost));
 
 
             // Assert

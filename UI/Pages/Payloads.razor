@@ -16,7 +16,9 @@
                         <MatListItem>
                             <DeletePayloadButton IdOfPayloadToRemove="payload.Id" @bind-PayloadList="tab.PayloadsToDisplay">
                             </DeletePayloadButton>
-                            <MatIconButton Icon="offline_bolt" OnClick="(e) => { IsSpellsDialogOpen = true; }"></MatIconButton>
+                            <MatIconButton Icon="offline_bolt" OnClick="(e) => { OpenSpellDialog(payload.Id); }">
+
+                            </MatIconButton>
                             @payload.FileName (@payload.Hash)
                         </MatListItem>
                     </MatRipple>
@@ -27,6 +29,4 @@
         </MatTab>
     }
 </MatTabGroup>
-<SpellsDialog IsSpellsDialogOpen="IsSpellsDialogOpen" CloseSpellsDialog="@CloseSpellDialog"></SpellsDialog>
-
-
+<SpellsDialog IsSpellsDialogOpen="IsSpellsDialogOpen" PayloadId="SelectedPayloadId" CloseSpellsDialog="@CloseSpellDialog"></SpellsDialog>

@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\ScanPost.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ScanResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\WebSocketMessages\ScanResultWSMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\Notifications.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\SupportedAntivirus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\PayloadType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ApiErrors\ApiError.cs" />
