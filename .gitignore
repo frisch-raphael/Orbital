@@ -6,3 +6,4 @@
 Orbital/Uploads/**
 Orbital/Migrations/**
 **/obj/**
+orbital.db

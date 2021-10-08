@@ -1,8 +1,9 @@
 ﻿@using Shared.Enums
 <MatDialog @bind-IsOpen="@IsSpellDialogOpen">
-    <MatDialogTitle>Configure </MatDialogTitle>
+    <MatDialogTitle>Configure @SpellToLaunch?.Title</MatDialogTitle>
     <MatDialogContent>
-
+        <MatSelectItem @bind-Value="ChosenAntivirus" Items="@Antiviruses">
+        </MatSelectItem>
 
     </MatDialogContent>
     <MatDialogActions>
@@ -22,7 +23,8 @@
     [Parameter]
     public EventCallback<List<SupportedAntivirus>> OnConfigured { get; set; }
 
-
+    public List<SupportedAntivirus> Antiviruses { get; set; }
+        = Enum.GetValues(typeof(SupportedAntivirus)).Cast<SupportedAntivirus>().ToList();
 
     private async Task LaunchScan()
     {

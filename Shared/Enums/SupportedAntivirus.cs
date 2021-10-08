@@ -5,8 +5,10 @@
         //Defender,
         //Avast,
         Clamav,
-        TestAntivir,
-        McAfee
+        Comodo,
+        McAfee,
+        TestAntivir
+
     }
 
 }

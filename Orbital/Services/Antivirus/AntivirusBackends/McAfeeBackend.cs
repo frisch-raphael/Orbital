@@ -10,7 +10,7 @@ namespace Orbital.Services.AntivirusBackends
     {
         public class McAfeeBackend : AntivirusBackend
         {
-            public override string Cmd { get; } = "/usr/local/uvscan/uvscan";
+            public override string BinaryPath { get; } = "/usr/local/uvscan/uvscan";
 
             public override string PayloadPathArg { get; } = "--SECURE";
 

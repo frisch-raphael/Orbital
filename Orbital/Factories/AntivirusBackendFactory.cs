@@ -20,6 +20,7 @@ namespace Orbital.Services.AntivirusBackends
                 case SupportedAntivirus.Clamav: return new ClamavBackend();
                 case SupportedAntivirus.TestAntivir: return new TestAntivirBackend();
                 case SupportedAntivirus.McAfee: return new McAfeeBackend();
+                case SupportedAntivirus.Comodo: return new ComodoBackend();
                 default:
                     throw new ArgumentException("Trying to create unsupported antivirus backend");
             }

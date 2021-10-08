@@ -5,7 +5,7 @@
 @using System.Text
 @using Shared.Static
 @using Ui.Services
-<MatDialog @bind-IsOpen="@IsSpellsDialogOpen">
+<MatDialog IsOpenChanged="@IsSpellsDialogOpenChanged" IsOpen="IsSpellsDialogOpen">
     <MatDialogTitle>@SpellType.Scan.ToString()</MatDialogTitle>
     <MatDialogContent>
         <div class="mat-layout-grid">
@@ -102,7 +102,13 @@
     spellType: SpellType.Scan),
     };
 
-    async Task SpellChosen(OrbitalScan orbitalScan)
+    private void IsSpellsDialogOpenChanged(bool isSpellsDialogOpen)
+    {
+        IsSpellsDialogOpen = isSpellsDialogOpen;
+        if (!IsSpellsDialogOpen) IsSpellDialogOpen = false;
+    }
+
+    private async Task SpellChosen(OrbitalScan orbitalScan)
     {
         SelectedOrbitalScan = orbitalScan;
         if (orbitalScan.IsAppliedToAllAntivirus)
@@ -111,12 +117,12 @@
         }
         else
         {
-            IsSpellsDialogOpen = true;
+            IsSpellDialogOpen = true;
         }
     }
 
 
-    async Task LaunchSpell(List<SupportedAntivirus> antiviruses)
+    private async Task LaunchSpell(List<SupportedAntivirus> antiviruses)
     {
         var OrbitalClient = OrbitalHttpClient.Client;
         HttpResponseMessage response = new();

@@ -10,9 +10,10 @@ namespace Orbital.Services.AntivirusBackends
     {
         public class TestAntivirBackend : AntivirusBackend
         {
-            public override string Cmd { get; } = "echo";
+            public override string BinaryPath { get; } = "echo";
 
             public override string PayloadPathArg { get; } = "orbital";
+            public override List<string> OtherArgs { get; } = new List<string>();
 
             public override Regex OutputParser { get; } = new Regex("orbital");
         }

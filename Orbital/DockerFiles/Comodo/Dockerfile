@@ -1,0 +1,9 @@
+﻿  
+FROM ubuntu:bionic AS backend
+
+RUN apt-get update && apt-get install wget -y
+
+RUN wget -q https://cdn.download.comodo.com/cis/download/installs/linux/cav-linux_x64.deb -O /tmp/cav-linux_x64.deb && \
+    dpkg -i /tmp/cav-linux_x64.deb || exit 0
+    
+RUN wget -q http://download.comodo.com/av/updates58/sigs/bases/bases.cav -O /opt/COMODO/scanners/bases.cav

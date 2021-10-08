@@ -9,7 +9,7 @@ namespace Orbital.Services.AntivirusBackends
 {
     public class ClamavBackend : AntivirusBackend
     {
-        public override string Cmd { get; } = "clamscan";
+        public override string BinaryPath { get; } = "clamscan";
 
         public override string PayloadPathArg { get; } = "--no-summary";
 

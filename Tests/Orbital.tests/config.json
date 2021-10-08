@@ -1,7 +1,7 @@
 {
   "SharedOptions": {
 
-    "RodinOptions": {
+    "OrbitalOptions": {
       "Https": true,
       "Domain": "localhost",
       "Port": 333

@@ -66,7 +66,7 @@ namespace Orbital.Services.Antivirus
             IList<ContainerListResponse> containers)
         {
 
-            Logger.LogInformation($"cmd lines configured: {AntivirusBackend.Cmd} {FormatPayloadArg("[[PAYLOADFILENAME]]")}");
+            Logger.LogInformation($"cmd lines configured: {String.Join(' ', AntivirusBackend.GetFullCmd("[[PAYLOADNAME]]"))}");
 
             List<DispatchedScan> dispatchedScanTasks = DispatchScanToContainers(payloadPathes, containers);
 
@@ -79,7 +79,7 @@ namespace Orbital.Services.Antivirus
                     AttachStderr = true,
                     AttachStdin = true,
                     AttachStdout = true,
-                    Cmd = new List<string>() { AntivirusBackend.Cmd, AntivirusBackend.PayloadPathArg, Path.GetFileName(dispatchedScanTask.FileToScanPath) }
+                    Cmd = AntivirusBackend.GetFullCmd(Path.GetFileName(dispatchedScanTask.FileToScanPath))
                 };
                 scanTasks.Add(Scan(dispatchedScanTask, ContainerExecCreateParams));
 
@@ -89,7 +89,6 @@ namespace Orbital.Services.Antivirus
 
             return scanTasks.Select(st => st.Result).ToList();
         }
-
 
 
         private async Task<ScanResult> Scan(DispatchedScan dispatchedScanTask,
