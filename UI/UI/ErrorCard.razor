@@ -1,4 +1,4 @@
-﻿<div class="error_card_container">
+﻿<div class="@Class">
     <div>
         <BaseCard>
             <MatIcon Class="error_icon" Icon="sentiment_very_dissatisfied"></MatIcon>
@@ -21,4 +21,15 @@
 @code {
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+
+    private string _Class;
+
+    [Parameter]
+    public string Class
+    {
+        get => _Class + " error_card_container";
+        set => _Class = value;
+    }
+
+
 }

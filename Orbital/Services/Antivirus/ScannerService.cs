@@ -53,15 +53,6 @@ namespace Orbital.Services.Antivirus
             AntivirusBackend = antivirusBackendFactory.Create(supportedAntivirus);
         }
 
-        private string FormatPayloadArg(string payloadFileName)
-        {
-            if (payloadFileName.Contains('\\') || payloadFileName.Contains('/'))
-            {
-                throw new ArgumentException("PayloadFileName is a path");
-            }
-            return $"{AntivirusBackend.PayloadPathArg} {payloadFileName}";
-        }
-
         public async Task<List<ScanResult>> LaunchScans(string[] payloadPathes,
             IList<ContainerListResponse> containers)
         {
@@ -83,6 +74,7 @@ namespace Orbital.Services.Antivirus
                     AttachStdout = true,
                     Cmd = FullCmd
                 };
+
                 scanTasks.Add(Scan(dispatchedScanTask, ContainerExecCreateParams));
 
             }

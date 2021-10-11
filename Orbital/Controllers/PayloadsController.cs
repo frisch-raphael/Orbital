@@ -52,7 +52,8 @@ namespace Orbital.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Payload>> Post(
-            [Required, MaxFileSize, RestrictFileExtensions] IFormFile file)
+            //[Required, MaxFileSize, RestrictFileExtensions] IFormFile file)
+            [Required, MaxFileSize] IFormFile file)
         {
             var filePoco = new UploadedFile(file);
             var payloadFileStorer = PayloadFileStorerFactory.Create(filePoco);

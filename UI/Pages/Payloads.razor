@@ -7,7 +7,7 @@
             <MatList>
                 @if (!tab.PayloadsToDisplay.Any())
                 {
-                    <ErrorCard>No @tab.Label uploaded yet</ErrorCard>
+                    <ErrorCard Class="error-card">No such file uploaded yet</ErrorCard>
                 }
                 @foreach (var payload in tab.PayloadsToDisplay)
                 {
@@ -30,3 +30,10 @@
     }
 </MatTabGroup>
 <SpellsDialog IsSpellsDialogOpen="IsSpellsDialogOpen" PayloadId="SelectedPayloadId" CloseSpellsDialog="@CloseSpellDialog"></SpellsDialog>
+
+<style>
+    .error-card {
+        padding-top: 1rem;
+    }
+
+</style>

@@ -2,10 +2,11 @@
 {
     public enum PayloadType
     {
-        kNativeExecutable,
-        kNativeLibrary,
-        kAssemblyExecutable,
-        kAssemblyLibrary
+        NativeExecutable,
+        NativeLibrary,
+        AssemblyExecutable,
+        AssemblyLibrary,
+        Other
     }
 
 }

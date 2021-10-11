@@ -79,19 +79,20 @@ namespace Ui.Pages
                 tab.PayloadsToDisplay = FilterPayloads(payloads, payloadType);
                 switch (payloadType)
                 {
-                    case PayloadType.kNativeExecutable:
+                    case PayloadType.NativeExecutable:
                         tab.Label = "Native executables";
                         break;
-                    case PayloadType.kNativeLibrary:
+                    case PayloadType.NativeLibrary:
                         tab.Label = "Native libraries";
                         break;
-                    case PayloadType.kAssemblyExecutable:
+                    case PayloadType.AssemblyExecutable:
                         tab.Label = "Assembly executables";
                         break;
-                    case PayloadType.kAssemblyLibrary:
+                    case PayloadType.AssemblyLibrary:
                         tab.Label = "Assembly libraries";
                         break;
                     default:
+                        tab.Label = "Others";
                         break;
                 }
 

@@ -73,11 +73,11 @@ namespace Orbital.Services
             switch (UploadedFile.Extension)
             {
                 case (".dll"):
-                    return PayloadType.kNativeLibrary;
+                    return PayloadType.NativeLibrary;
                 case (".exe"):
-                    return PayloadType.kNativeExecutable;
+                    return PayloadType.NativeExecutable;
                 default:
-                    throw new ArgumentException("Payload type not recognized");
+                    return PayloadType.Other;
             }
 
         }

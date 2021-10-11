@@ -93,11 +93,11 @@ namespace Ui.Services
             }
 
 
-            var extension = Path.GetExtension(fileName);
-            if (!FileUploadConfig.kSupportedExtensions.Contains(extension))
-            {
-                throw new ArgumentException($"{extension} extension is not supported");
-            }
+            //var extension = Path.GetExtension(fileName);
+            //if (!FileUploadConfig.kSupportedExtensions.Contains(extension))
+            //{
+            //    throw new ArgumentException($"{extension} extension is not supported");
+            //}
 
             if (string.IsNullOrWhiteSpace(fileName))
             {
