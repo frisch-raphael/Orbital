@@ -72,14 +72,16 @@ namespace Orbital.Services.Antivirus
 
             List<Task<ScanResult>> scanTasks = new List<Task<ScanResult>>();
 
+
             foreach (var dispatchedScanTask in dispatchedScanTasks)
             {
+                var FullCmd = AntivirusBackend.GetFullCmd(Path.GetFileName(dispatchedScanTask.FileToScanPath));
                 var ContainerExecCreateParams = new ContainerExecCreateParameters
                 {
                     AttachStderr = true,
                     AttachStdin = true,
                     AttachStdout = true,
-                    Cmd = AntivirusBackend.GetFullCmd(Path.GetFileName(dispatchedScanTask.FileToScanPath))
+                    Cmd = FullCmd
                 };
                 scanTasks.Add(Scan(dispatchedScanTask, ContainerExecCreateParams));
 

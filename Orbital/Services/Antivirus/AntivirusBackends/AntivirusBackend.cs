@@ -28,7 +28,7 @@ namespace Orbital.Services.AntivirusBackends
             var FullCmd = new List<string>() { BinaryPath };
             FullCmd.AddRange(OtherArgs);
             FullCmd.Add(PayloadPathArg);
-            FullCmd.Add(PayloadFileName);
+            FullCmd.Add("/" + PayloadFileName);
             return FullCmd;
         }
     }
