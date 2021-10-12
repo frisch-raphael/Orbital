@@ -1,23 +1,16 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
-using Orbital.Static;
-using Shared.Config;
 using Shared.Enums;
 using Shared.Dtos;
 using System.Linq;
-using Rodin.Static;
 using Orbital.Services.AntivirusBackends;
 
 namespace Orbital.Services.Antivirus

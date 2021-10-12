@@ -1,17 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Docker.DotNet;
+using Docker.DotNet.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.IO;
 using System;
+using Orbital.Services;
 using Orbital.Factories;
 using Shared.Enums;
 using Microsoft.Extensions.Logging;
 using Orbital.Model;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using Shared.Dtos;
 using Microsoft.AspNetCore.Http;
+using Rodin.Static;
 using Shared.ControllerResponses.Dtos;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.SignalR;
 using Orbital.Classes;
 
@@ -19,7 +26,7 @@ namespace Orbital.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ScansController : ControllerBase
+    public class DissectionsController : ControllerBase
     {
 
         private AntivirusClientFactory AntivirusClientFactory;
@@ -27,11 +34,11 @@ namespace Orbital.Controllers
         private readonly IServiceScopeFactory ServiceScopeFactory;
         private readonly IHubContext<NotificationHub> HubContext;
 
-        private ILogger<ScansController> Logger { get; }
+        private ILogger<DissectionsController> Logger { get; }
 
-        public ScansController(
+        public DissectionsController(
             AntivirusClientFactory antiviruClientFactory,
-            ILogger<ScansController> logger,
+            ILogger<DissectionsController> logger,
             OrbitalContext orbitalContext, IServiceScopeFactory serviceScopeFactory, IHubContext<NotificationHub> hubContext)
         {
             AntivirusClientFactory = antiviruClientFactory;
@@ -45,9 +52,9 @@ namespace Orbital.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public ActionResult<List<ScanResult>> Post(
-            [Required] ScanPost scanPost)
+            [Required] int payloadId)
         {
-            var payload = OrbitalContext.Payloads.Single(p => p.Id == scanPost.PayloadId);
+            var payload = OrbitalContext.Payloads.Single(p => p.Id == payloadId);
             var initialResults = new List<ScanResult>();
             //var scanTasks = new List<Task<List<ScanResult>>>();
 
