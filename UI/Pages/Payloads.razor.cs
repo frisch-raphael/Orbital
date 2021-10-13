@@ -24,7 +24,7 @@ namespace Ui.Pages
 
         private bool IsSpellsDialogOpen { get; set; } = false;
 
-        private int SelectedPayloadId { get; set; }
+        private Payload SelectedPayload { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -106,9 +106,9 @@ namespace Ui.Pages
             IsSpellsDialogOpen = false;
         }
 
-        private void OpenSpellDialog(int payloadId)
+        private void OpenSpellDialog(Payload payload)
         {
-            SelectedPayloadId = payloadId;
+            SelectedPayload = payload;
             IsSpellsDialogOpen = true;
         }
     }

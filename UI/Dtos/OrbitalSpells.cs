@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shared.Enums;
 
 namespace Ui.Dtos
 {
@@ -13,49 +14,18 @@ namespace Ui.Dtos
 
     public class OrbitalSpell
     {
-        public readonly string Title;
-        public readonly string Endpoint;
-        public readonly string Description;
-        public readonly string Image;
-        public readonly SpellType SpellType;
-
-        public OrbitalSpell(
-            string title,
-            string endpoint,
-            string description,
-            string image,
-            SpellType spellType)
-        {
-            Title = title;
-            Endpoint = endpoint;
-            Description = description;
-            Image = image;
-            SpellType = spellType;
-        }
+        public string Title { get; init; }
+        public string Endpoint { get; init; }
+        public string Description { get; init; }
+        public string Image { get; init; }
+        public List<PayloadType> SupportedPayloads { get; init; }
 
     }
 
 
     public class OrbitalScan : OrbitalSpell
     {
-        public readonly bool IsAppliedToAllAntivirus;
-
-        public OrbitalScan(
-            string title,
-            string endpoint,
-            string description,
-            string image,
-            SpellType spellType,
-            bool isAppliedToAllAntivirus = false) : base(
-                title,
-                endpoint,
-                description,
-                image,
-                spellType
-                )
-        {
-            IsAppliedToAllAntivirus = isAppliedToAllAntivirus;
-        }
+        public bool IsAppliedToAllAntivirus { get; init; }
 
     }
 }

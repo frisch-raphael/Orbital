@@ -62,44 +62,43 @@
     public bool IsSpellDialogOpen { get; set; }
 
     [Parameter]
-    public int PayloadId { get; set; }
+    public Payload Payload { get; set; }
 
     [Inject]
     private RodinHttpClient OrbitalHttpClient { get; set; }
 
     OrbitalScan SelectedOrbitalScan { get; set; }
 
-    private readonly List<OrbitalScan> OrbitalScans = new List<OrbitalScan>()
-    {
+    private readonly List<OrbitalScan> OrbitalScans = new List<OrbitalScan>() {
 
-    new OrbitalScan(
-    title: "Simple scan",
-    endpoint: "Scans",
-    description: "Scan a payload with a single antivirus",
-    image: "images/simple_scan.png",
-    spellType: SpellType.Scan),
+    new OrbitalScan() {
+    Title = "Simple Scan",
+    Endpoint = "Scans",
+    Description = "Scan a payload with a single antivirus",
+    Image = "images/simple_scan.png",
+    SupportedPayloads = Enum.GetValues(typeof(PayloadType)).Cast<PayloadType>().ToList()},
 
-    new OrbitalScan(
-    title: "Scan all",
-    endpoint: "Scans",
-    description: "Scan a payload with every supported antiviruses",
-    image: "images/offline_virustotal.png",
-    spellType: SpellType.Scan,
-    isAppliedToAllAntivirus: true),
+    new OrbitalScan() {
+    Title = "Scan all",
+    Endpoint = "Scans",
+    Description = "Scan a payload with every supported antiviruses",
+    Image = "images/offline_virustotal.png",
+    IsAppliedToAllAntivirus = true,
+    SupportedPayloads = Enum.GetValues(typeof(PayloadType)).Cast<PayloadType>().ToList()},
 
-    new OrbitalScan(
-    title: "Dissect",
-    endpoint: "Dissect",
-    description: "Statically analyse every functions of a payload separatly, and returns which ones are flagged, and which ones are healthy",
-    image: "images/dissect.png",
-    spellType: SpellType.Scan),
 
-    new OrbitalScan(
-    title: "Dissect",
-    endpoint: "Dissect",
-    description: "Statically analyse every functions of a payload separatly, and returns which ones are flagged, and which ones are healthy",
-    image: "images/dissect.png",
-    spellType: SpellType.Scan),
+    new OrbitalScan() {
+    Title = "Dissect",
+    Endpoint = "Dissect",
+    Description = "Statically analyse every functions of a payload separatly, and returns which ones are flagged, and which ones are healthy",
+    Image = "images/dissect.png",
+    SupportedPayloads = new List<PayloadType> { PayloadType.NativeExecutable, PayloadType.NativeLibrary } },
+
+    new OrbitalScan() {
+    Title = "Dissect",
+    Endpoint = "Dissect",
+    Description = "Statically analyse every functions of a payload separatly, and returns which ones are flagged, and which ones are healthy",
+    Image = "images/dissect.png" }
     };
 
     private void IsSpellsDialogOpenChanged(bool isSpellsDialogOpen)
@@ -128,7 +127,7 @@
         HttpResponseMessage response = new();
         var ScanPost = new ScanPost
         {
-            PayloadId = PayloadId,
+            PayloadId = Payload.Id,
             Antiviruses = antiviruses
         };
         var endpoint = SelectedOrbitalScan.Endpoint;

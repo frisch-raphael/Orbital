@@ -26,6 +26,10 @@ namespace Orbital.Services
         private OrbitalContext OrbitalContext { get; }
         private HammerWrapper HammerWrapper { get; }
 
+        //private readonly Dictionary<PayloadType, Func<string, List<Function>>> GetFunctions =
+        //    new Dictionary<PayloadType, Func<string, List<Function>>>();
+
+
         public PayloadFileStorer(
             ILogger<PayloadsController> logger,
             OrbitalContext rodinContext,
@@ -35,17 +39,24 @@ namespace Orbital.Services
             Logger = logger;
             OrbitalContext = rodinContext;
             HammerWrapper = hammerWrapper;
+            //GetFunctions[PayloadType.AssemblyExecutable] = hammerWrapper.FetchFunctionsFromPdb;
+            //GetFunctions[PayloadType.AssemblyLibrary] = hammerWrapper.FetchFunctionsFromPdb;
+            //GetFunctions[PayloadType.NativeExecutable] = hammerWrapper.FetchFunctionsFromPdb;
+            //GetFunctions[PayloadType.NativeLibrary] = hammerWrapper.FetchFunctionsFromPdb;
+            //GetFunctions[PayloadType.Other] = hammerWrapper.FetchFunctionsFromPdb;
         }
 
 
         public Payload StorePayloadDataInDb()
         {
+            var payloadType = GetPayloadType();
+            var functions = GetFunctions(payloadType);
+
             var payload = new Payload()
             {
                 FileName = UploadedFile.TrustedFileName,
                 StoragePath = LocalPathes.UploadDirectory + UploadedFile.StorageFileName,
-                //Functions = HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath),
-                Functions = new List<Function>(),
+                Functions = functions,
                 Hash = GetHash(UploadedFile.File.OpenReadStream()),
                 PayloadType = GetPayloadType()
             };
@@ -54,6 +65,16 @@ namespace Orbital.Services
             OrbitalContext.SaveChanges();
             return payload;
 
+        }
+
+        private List<Function> GetFunctions(PayloadType payloadType)
+        {
+
+            if (payloadType != PayloadType.Other)
+            {
+                return HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath);
+            }
+            return new List<Function>();
         }
 
         private string GetHash(Stream fileStream)

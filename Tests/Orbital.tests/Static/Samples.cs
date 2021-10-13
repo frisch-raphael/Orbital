@@ -12,7 +12,7 @@ namespace Orbital.Tests.Static
             FileName = "simplefunctionsx86.exe",
             StoragePath = "PayloadsSample\\Healthy\\SimpleFunctions_x86.exe",
             Id = 1,
-            PayloadType = PayloadType.kNativeExecutable
+            PayloadType = PayloadType.NativeExecutable
         };
 
         public static readonly Payload SimpleX64Exe = new Payload()
@@ -20,7 +20,7 @@ namespace Orbital.Tests.Static
             FileName = "simplefunctionsx64.exe",
             StoragePath = "PayloadsSample\\Healthy\\SimpleFunctions_x64.exe",
             Id = 2,
-            PayloadType = PayloadType.kNativeExecutable
+            PayloadType = PayloadType.NativeExecutable
         };
 
         public static readonly Payload TcpMeterpreterX86Exe = new Payload()
@@ -28,7 +28,7 @@ namespace Orbital.Tests.Static
             FileName = "meterpreter.exe",
             StoragePath = "PayloadsSample\\SimpleX86TcpMeterpreter.exe",
             Id = 3,
-            PayloadType = PayloadType.kNativeExecutable
+            PayloadType = PayloadType.NativeExecutable
         };
 
         public static readonly List<Payload> PayloadSamples = new List<Payload>()

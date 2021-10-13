@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Config\Config.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\DissectionPost.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\ScanPost.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ScanResult.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\WebSocketMessages\ScanResultWSMessage.cs" />
@@ -35,6 +36,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Dtos\ControllerResponses\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\" />
   </ItemGroup>
 </Project>
