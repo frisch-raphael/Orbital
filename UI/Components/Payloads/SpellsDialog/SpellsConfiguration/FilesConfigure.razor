@@ -1,0 +1,56 @@
+﻿<MatTreeView TNode="TreeNodeModel"
+             RootNode="@MyRootNode"
+             GetChildNodesCallback="@((n)=>n.Nodes)">
+    <NodeTemplate>
+        test
+    </NodeTemplate>
+</MatTreeView>
+
+@code
+{
+    class TreeNodeModel
+    {
+        public string Name { get; set; }
+        public TreeNodeModel[] Nodes { get; set; } = new TreeNodeModel[0];
+    }
+
+    TreeNodeModel MyRootNode = new TreeNodeModel()
+    {
+        Name = "Book",
+        Nodes = new TreeNodeModel[] {
+        new TreeNodeModel(){
+            Name = "Chapter 1",
+            Nodes = new TreeNodeModel[] {
+                new TreeNodeModel(){
+                    Name = "Heading",
+                },
+                new TreeNodeModel(){
+                    Name = "Content",
+                }
+            }
+        },
+        new TreeNodeModel(){
+            Name = "Chapter 2",
+            Nodes = new TreeNodeModel[] {
+                new TreeNodeModel(){
+                    Name = "Heading",
+                },
+                new TreeNodeModel(){
+                    Name = "Content",
+                }
+            }
+        },
+        new TreeNodeModel(){
+            Name = "Chapter 3",
+            Nodes = new TreeNodeModel[] {
+                new TreeNodeModel(){
+                    Name = "Heading",
+                },
+                new TreeNodeModel(){
+                    Name = "Content",
+                }
+            }
+        }
+    }
+    };
+}

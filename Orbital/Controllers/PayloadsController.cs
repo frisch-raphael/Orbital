@@ -38,13 +38,33 @@ namespace Orbital.Controllers
         public ActionResult<List<Payload>> Get()
         {
             return Ok(RodinContext.Payloads.ToList());
+
         }
 
         // GET api/<ValuesController>/5
-        [HttpGet("{id}")]
-        public ActionResult<Payload> Get([Required] int id)
+        [HttpGet("{id}/Functions")]
+        public ActionResult<List<Function>> GetFunctions([Required] int id)
         {
-            return Ok(RodinContext.Payloads.Single(p => p.Id == id));
+            var payload = RodinContext.Payloads.Single(p => p.Id == id);
+            RodinContext.Entry(payload)
+                .Collection(p => p.Functions)
+                .Load();
+            return Ok(payload.Functions.ToList());
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Payload> Get([Required] int id, bool areFunctionsRequested)
+        {
+            var payload = RodinContext.Payloads.Single(p => p.Id == id);
+            if (!areFunctionsRequested)
+            {
+                return Ok(payload);
+            }
+            RodinContext.Entry(payload)
+                .Collection(p => p.Functions)
+                .Load();
+
+            return Ok(payload);
         }
 
         // POST api/<ValuesController>

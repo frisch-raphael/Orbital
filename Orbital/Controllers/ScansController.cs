@@ -22,7 +22,7 @@ namespace Orbital.Controllers
     public class ScansController : ControllerBase
     {
 
-        private AntivirusClientFactory AntivirusClientFactory;
+        private readonly AntivirusClientFactory AntivirusesClientFactory;
         private readonly OrbitalContext OrbitalContext;
         private readonly IServiceScopeFactory ServiceScopeFactory;
         private readonly IHubContext<NotificationHub> HubContext;
@@ -30,11 +30,11 @@ namespace Orbital.Controllers
         private ILogger<ScansController> Logger { get; }
 
         public ScansController(
-            AntivirusClientFactory antiviruClientFactory,
+            AntivirusClientFactory antivirusClientFactory,
             ILogger<ScansController> logger,
             OrbitalContext orbitalContext, IServiceScopeFactory serviceScopeFactory, IHubContext<NotificationHub> hubContext)
         {
-            AntivirusClientFactory = antiviruClientFactory;
+            AntivirusesClientFactory = antivirusClientFactory;
             Logger = logger;
             OrbitalContext = orbitalContext;
             ServiceScopeFactory = serviceScopeFactory;
@@ -54,14 +54,14 @@ namespace Orbital.Controllers
             //foreach (var antivirus in scanPost.Antiviruses)
             //{
 
-            //    var antivirusClient = AntivirusClientFactory.Create(antivirus);
+            //    var antivirusClient = AntivirusesClientFactory.Create(antivirus);
             //    scanTasks.Add(antivirusClient.Scan(new string[] { payload.StoragePath }));
             //}
 
             //await Task.WhenAll(scanTasks);
             //await scanPost.Antiviruses.ForEachAsync(20, async antivirus =>
             //{
-            //    var antivirusClient = AntivirusClientFactory.Create(antivirus);
+            //    var antivirusClient = AntivirusesClientFactory.Create(antivirus);
             //    result = await antivirusClient.Scan(new string[] { payload.StorageName });
             //});
 
@@ -71,7 +71,7 @@ namespace Orbital.Controllers
                 using var scope = ServiceScopeFactory.CreateScope();
                 var orbitalContext = scope.ServiceProvider.GetRequiredService<OrbitalContext>();
 
-                var antivirusClient = AntivirusClientFactory.Create(supportedAntivirus);
+                var antivirusClient = AntivirusesClientFactory.Create(supportedAntivirus);
                 var initialResult = new ScanResult()
                 {
                     Antivirus = supportedAntivirus,

@@ -2,8 +2,16 @@
 <MatDialog @bind-IsOpen="@IsSpellDialogOpen">
     <MatDialogTitle>Configure @SpellToLaunch?.Title</MatDialogTitle>
     <MatDialogContent>
-        <MatSelectItem @bind-Value="ChosenAntivirus" Items="@Antiviruses">
-        </MatSelectItem>
+
+        @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.AntivirusToUse) == true)
+        {
+            <MatSelectItem @bind-Value="ChosenAntivirus" Items="@Antiviruses" Label="Antivirus">
+            </MatSelectItem>
+        }
+        @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.FilesFromPayloadToScan) == true)
+        {
+            <FilesConfigure></FilesConfigure>
+        }
 
     </MatDialogContent>
     <MatDialogActions>

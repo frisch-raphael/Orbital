@@ -69,7 +69,7 @@ namespace Orbital.Services
 
         private List<Function> GetFunctions(PayloadType payloadType)
         {
-
+            // for now functions from all payload types are extracted from pdb
             if (payloadType != PayloadType.Other)
             {
                 return HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath);

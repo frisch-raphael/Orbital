@@ -53,13 +53,13 @@
     <None Update="integrationsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="PayloadsSample\Healthy\SimpleFunctions_x64.exe">
+    <None Update="PayloadSamples\Healthy\SimpleFunctions_x64.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="PayloadsSample\Healthy\SimpleFunctions_x86.exe">
+    <None Update="PayloadSamples\Healthy\SimpleFunctions_x86.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="PayloadsSample\SimpleX86TcpMeterpreter.exe">
+    <None Update="PayloadSamples\SimpleX86TcpMeterpreter.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="xunit.runner.json">
@@ -70,7 +70,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ContentWithTargetPath Include="PayloadsSample\**">
+    <ContentWithTargetPath Include="PayloadSamples\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
     </ContentWithTargetPath>

@@ -1,9 +1,7 @@
-@using Newtonsoft.Json
 @using Shared.Dtos
 @using Shared.Enums
-@using System.Net.Http.Json
-@using System.Text
 @using Shared.Static
+@using Ui.Enums
 @using Ui.Services
 <MatDialog IsOpenChanged="@IsSpellsDialogOpenChanged" IsOpen="IsSpellsDialogOpen">
     <MatDialogTitle>@SpellType.Scan.ToString()</MatDialogTitle>
@@ -31,9 +29,9 @@
         <MatButton OnClick="@(e => { CloseSpellsDialog.InvokeAsync(); })">Close</MatButton>
     </MatDialogActions>
 </MatDialog>
-<SpellDialog SpellToLaunch="SelectedOrbitalScan" IsSpellDialogOpen="IsSpellDialogOpen" OnConfigured="@LaunchSpell">
+<SpellConfigureDialog SpellToLaunch="SelectedOrbitalScan" IsSpellDialogOpen="IsSpellDialogOpen" OnConfigured="@LaunchSpell">
 
-</SpellDialog>
+</SpellConfigureDialog>
 
 
 <style>
@@ -42,14 +40,16 @@
     }
 
     .mdc-dialog .mdc-dialog__surface {
-        max-height: 80%;
         background-color: white;
+        max-height: 80%;
         max-width: none;
         min-width: 85%;
     }
+
 </style>
 
 @code {
+
     [Inject]
     private IMatToaster Toaster { get; set; }
 
@@ -69,36 +69,41 @@
 
     OrbitalScan SelectedOrbitalScan { get; set; }
 
-    private readonly List<OrbitalScan> OrbitalScans = new List<OrbitalScan>() {
-
-    new OrbitalScan() {
-    Title = "Simple Scan",
-    Endpoint = "Scans",
-    Description = "Scan a payload with a single antivirus",
-    Image = "images/simple_scan.png",
-    SupportedPayloads = Enum.GetValues(typeof(PayloadType)).Cast<PayloadType>().ToList()},
-
-    new OrbitalScan() {
-    Title = "Scan all",
-    Endpoint = "Scans",
-    Description = "Scan a payload with every supported antiviruses",
-    Image = "images/offline_virustotal.png",
-    IsAppliedToAllAntivirus = true,
-    SupportedPayloads = Enum.GetValues(typeof(PayloadType)).Cast<PayloadType>().ToList()},
-
-
-    new OrbitalScan() {
-    Title = "Dissect",
-    Endpoint = "Dissect",
-    Description = "Statically analyse every functions of a payload separatly, and returns which ones are flagged, and which ones are healthy",
-    Image = "images/dissect.png",
-    SupportedPayloads = new List<PayloadType> { PayloadType.NativeExecutable, PayloadType.NativeLibrary } },
-
-    new OrbitalScan() {
-    Title = "Dissect",
-    Endpoint = "Dissect",
-    Description = "Statically analyse every functions of a payload separatly, and returns which ones are flagged, and which ones are healthy",
-    Image = "images/dissect.png" }
+    private readonly List<OrbitalScan> OrbitalScans = new()
+    {
+        new OrbitalScan
+        {
+            Title = "Simple Scan",
+            Endpoint = "Scans",
+            Description = "Scan a payload with a single antivirus",
+            Image = "images/simple_scan.png",
+            SupportedPayloads = Enum.GetValues(typeof(PayloadType)).Cast<PayloadType>().ToList(),
+            ConfigurationNeeded = new List<SpellConfiguration> { SpellConfiguration.AntivirusToUse }
+        },
+        new OrbitalScan
+        {
+            Title = "Scan all",
+            Endpoint = "Scans",
+            Description = "Scan a payload with every supported antiviruses",
+            Image = "images/offline_virustotal.png",
+            SupportedPayloads = Enum.GetValues(typeof(PayloadType)).Cast<PayloadType>().ToList()
+        },
+        new OrbitalScan
+        {
+            Title = "Dissect",
+            Endpoint = "Dissect",
+            Description = "Statically analyze every functions of a payload separately, and returns which ones are flagged, and which ones are healthy",
+            Image = "images/dissect.png",
+            SupportedPayloads = new List<PayloadType> { PayloadType.NativeExecutable, PayloadType.NativeLibrary },
+            ConfigurationNeeded = new List<SpellConfiguration> { SpellConfiguration.AntivirusToUse, SpellConfiguration.FilesFromPayloadToScan }
+        },
+        new OrbitalScan
+        {
+            Title = "Dissect",
+            Endpoint = "Dissect",
+            Description = "Statically analyze every functions of a payload separately, and returns which ones are flagged, and which ones are healthy",
+            Image = "images/dissect.png"
+        }
     };
 
     private void IsSpellsDialogOpenChanged(bool isSpellsDialogOpen)
@@ -110,9 +115,10 @@
     private async Task SpellChosen(OrbitalScan orbitalScan)
     {
         SelectedOrbitalScan = orbitalScan;
-        if (orbitalScan.IsAppliedToAllAntivirus)
+        if (orbitalScan.ConfigurationNeeded.Count == 0)
         {
-            await LaunchSpell(Enum.GetValues(typeof(SupportedAntivirus)).Cast<SupportedAntivirus>().ToList());
+            await LaunchSpell(Enum.GetValues(typeof(SupportedAntivirus)).Cast<SupportedAntivirus>
+                ().ToList());
         }
         else
         {
@@ -121,11 +127,12 @@
     }
 
 
-    private async Task LaunchSpell(List<SupportedAntivirus> antiviruses)
+    private async Task LaunchSpell(List<SupportedAntivirus>
+        antiviruses)
     {
-        var OrbitalClient = OrbitalHttpClient.Client;
+        var orbitalClient = OrbitalHttpClient.Client;
         HttpResponseMessage response = new();
-        var ScanPost = new ScanPost
+        var scanPost = new ScanPost
         {
             PayloadId = Payload.Id,
             Antiviruses = antiviruses
@@ -135,7 +142,7 @@
         @*var test = JsonContent.Create(ScanPost);*@
         try
         {
-            response = await OrbitalClient.PostAsync(endpoint, JsonHelper.SerializeAsync(ScanPost));
+            response = await orbitalClient.PostAsync(endpoint, JsonHelper.SerializeAsync(scanPost));
         }
         catch (Exception ex)
         {

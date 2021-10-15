@@ -15,9 +15,6 @@ namespace Shared.Dtos
         public System.UInt32 AdressOffset { get; set; }
         public long Length { get; set; }
 
-        [ForeignKey("PayloadId")]
-        public int PayloadId { get; set; }
-
         public override string ToString()
         {
             return Name;

@@ -23,7 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Blazor.Extensions.Logging" Version="2.0.4" />
     <PackageReference Include="CompareNETObjects" Version="4.73.0" />
-    <PackageReference Include="MatBlazor" Version="2.8.0" />
+    <PackageReference Include="MatBlazor" Version="2.9.0-develop-042" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="5.0.10" />
