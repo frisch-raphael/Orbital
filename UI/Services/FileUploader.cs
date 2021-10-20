@@ -23,18 +23,18 @@ namespace Ui.Services
 
     public class FileUploader : IFileUploader
     {
-        private RodinHttpClient RodinHttpClient { get; }
+        private OrbitalHttpClient OrbitalHttpClient { get; }
 
         private ILogger<FileUploader> Logger { get; set; }
 
         private IMatToaster Toaster { get; set; }
 
         public FileUploader(
-            RodinHttpClient rodinHttpClient,
+            OrbitalHttpClient orbitalHttpClient,
             ILogger<FileUploader> logger,
             IMatToaster toaster)
         {
-            RodinHttpClient = rodinHttpClient;
+            OrbitalHttpClient = orbitalHttpClient;
             Logger = logger;
             Toaster = toaster;
         }
@@ -52,7 +52,7 @@ namespace Ui.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    await RodinHttpClient.ShowAndLogError(response);
+                    await OrbitalHttpClient.ShowAndLogError(response);
                     return;
                 }
 
@@ -121,7 +121,7 @@ namespace Ui.Services
                 fileName
             );
 
-            var client = RodinHttpClient.Client;
+            var client = OrbitalHttpClient.Client;
 
             return await client.PostAsync(
                 endpoint,

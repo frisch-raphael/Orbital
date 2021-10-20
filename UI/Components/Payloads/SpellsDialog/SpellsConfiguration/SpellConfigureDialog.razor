@@ -1,25 +1,37 @@
 ﻿@using Shared.Enums
-<MatDialog @bind-IsOpen="@IsSpellDialogOpen">
+@using Shared.Dtos
+<MatDialog IsOpenChanged="@IsSpellDialogOpenChanged" IsOpen="IsSpellDialogOpen">
     <MatDialogTitle>Configure @SpellToLaunch?.Title</MatDialogTitle>
     <MatDialogContent>
 
         @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.AntivirusToUse) == true)
         {
+            <MatH6>Choose the antivirus</MatH6>
             <MatSelectItem @bind-Value="ChosenAntivirus" Items="@Antiviruses" Label="Antivirus">
             </MatSelectItem>
         }
         @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.FilesFromPayloadToScan) == true)
         {
-            <FilesConfigure></FilesConfigure>
+            <MatH6>Choose the functions to scan</MatH6>
+            <FilesConfigure SelectedPayload="SelectedPayload"></FilesConfigure>
         }
 
     </MatDialogContent>
     <MatDialogActions>
-        <MatButton OnClick=@LaunchScan>Launch</MatButton>
+        <MatButton OnClick="@LaunchScan">Launch</MatButton>
     </MatDialogActions>
 </MatDialog>
 
+<style>
+
+
+
+</style>
+
 @code {
+    [Parameter]
+    public Payload SelectedPayload { get; set; }
+
     [Parameter]
     public bool IsSpellDialogOpen { get; set; }
 
@@ -27,6 +39,9 @@
 
     [Parameter]
     public OrbitalScan SpellToLaunch { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnIsSpellOpenChanged { get; set; }
 
     [Parameter]
     public EventCallback<List<SupportedAntivirus>> OnConfigured { get; set; }
@@ -38,4 +53,10 @@
     {
         await OnConfigured.InvokeAsync(new List<SupportedAntivirus> { ChosenAntivirus });
     }
+
+    private async Task IsSpellDialogOpenChanged(bool isSpellDialogOpen)
+    {
+        await OnIsSpellOpenChanged.InvokeAsync(isSpellDialogOpen);
+    }
+
 }

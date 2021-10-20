@@ -3,6 +3,6 @@
     public enum SpellConfiguration
     {
         AntivirusToUse,
-        FilesFromPayloadToScan
+        FunctionsToScan
     }
 }

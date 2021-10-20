@@ -3,6 +3,7 @@
 @using Shared.Static
 @using Ui.Enums
 @using Ui.Services
+
 <MatDialog IsOpenChanged="@IsSpellsDialogOpenChanged" IsOpen="IsSpellsDialogOpen">
     <MatDialogTitle>@SpellType.Scan.ToString()</MatDialogTitle>
     <MatDialogContent>
@@ -10,7 +11,7 @@
             <div class="mat-layout-grid-inner">
                 @foreach (var spell in OrbitalScans)
                 {
-                    <div class="mat-layout-grid-cell">
+                    <div class="mat-layout-grid-cell spell">
                         <BaseCard Title="@spell.Title" ImageUrl="@spell.Image">
                             <ChildContent>
                                 @spell.Description
@@ -29,8 +30,12 @@
         <MatButton OnClick="@(e => { CloseSpellsDialog.InvokeAsync(); })">Close</MatButton>
     </MatDialogActions>
 </MatDialog>
-<SpellConfigureDialog SpellToLaunch="SelectedOrbitalScan" IsSpellDialogOpen="IsSpellDialogOpen" OnConfigured="@LaunchSpell">
-
+<SpellConfigureDialog 
+    SpellToLaunch="SelectedOrbitalScan" 
+    IsSpellDialogOpen="IsSpellDialogOpen" 
+    OnConfigured="@LaunchSpell"
+    OnIsSpellOpenChanged="@UpdateIsSpellOpen"
+    SelectedPayload="SelectedPayload">
 </SpellConfigureDialog>
 
 
@@ -46,6 +51,9 @@
         min-width: 85%;
     }
 
+    .spell {
+        width: 30rem;
+    }
 </style>
 
 @code {
@@ -62,10 +70,10 @@
     public bool IsSpellDialogOpen { get; set; }
 
     [Parameter]
-    public Payload Payload { get; set; }
+    public Payload SelectedPayload { get; set; }
 
     [Inject]
-    private RodinHttpClient OrbitalHttpClient { get; set; }
+    private OrbitalHttpClient OrbitalHttpClient { get; set; }
 
     OrbitalScan SelectedOrbitalScan { get; set; }
 
@@ -117,8 +125,10 @@
         SelectedOrbitalScan = orbitalScan;
         if (orbitalScan.ConfigurationNeeded.Count == 0)
         {
-            await LaunchSpell(Enum.GetValues(typeof(SupportedAntivirus)).Cast<SupportedAntivirus>
-                ().ToList());
+            await LaunchSpell(Enum
+                .GetValues(typeof(SupportedAntivirus))
+                .Cast<SupportedAntivirus>()
+                .ToList());
         }
         else
         {
@@ -127,14 +137,13 @@
     }
 
 
-    private async Task LaunchSpell(List<SupportedAntivirus>
-        antiviruses)
+    private async Task LaunchSpell(List<SupportedAntivirus> antiviruses)
     {
         var orbitalClient = OrbitalHttpClient.Client;
         HttpResponseMessage response = new();
         var scanPost = new ScanPost
         {
-            PayloadId = Payload.Id,
+            PayloadId = SelectedPayload.Id,
             Antiviruses = antiviruses
         };
         var endpoint = SelectedOrbitalScan.Endpoint;
@@ -153,6 +162,10 @@
         {
             await OrbitalHttpClient.ShowAndLogError(response);
         }
+    }
+    private void UpdateIsSpellOpen(bool isSpellDialOpen)
+    {
+        IsSpellDialogOpen = isSpellDialOpen;
     }
 
 }

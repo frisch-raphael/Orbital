@@ -1,5 +1,5 @@
 ﻿<div class="base-card">
-    <MatCard>
+    <MatCard >
         @if (!string.IsNullOrWhiteSpace(ImageUrl))
         {
             <MatCardMedia Wide="true" ImageUrl="@ImageUrl"></MatCardMedia>
@@ -8,7 +8,7 @@
         @if (!string.IsNullOrWhiteSpace(Title))
         {
             <div class="base-card-title">
-                <MatHeadline6>
+                <MatHeadline6 Style="margin-top: 0.2rem; margin-bottom: 0.2rem">
                     @Title
                 </MatHeadline6>
             </div>
@@ -22,8 +22,6 @@
             @Actions
         </MatCardActionIcons>
     </MatCard>
-
-
 </div>
 
 

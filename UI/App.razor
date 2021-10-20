@@ -25,6 +25,10 @@
         background-color: white;
     }
 
+    .mat-h6 {
+        margin-bottom: 1rem;
+        margin-top: 1rem;
+    }
 </style>
 
 @code
@@ -77,7 +81,7 @@
         }
         else if (wsMessage.ScanResult.IsFlagged)
         {
-            DisplayHealtyPayload(wsMessage);
+            DisplayHealthyPayload(wsMessage);
         }
         else
         {
@@ -90,7 +94,7 @@
         Toaster.Add($"{wsMessage.ScanResult.Antivirus} scan for {wsMessage.Payload.FileName} failed.", MatToastType.Danger, "Scan failed");
     }
 
-    private void DisplayHealtyPayload(ScanResultWSMessage wsMessage)
+    private void DisplayHealthyPayload(ScanResultWSMessage wsMessage)
     {
         Toaster.Add(
             $"{wsMessage.ScanResult.Antivirus} reported {wsMessage.Payload.FileName} as flagged. ",

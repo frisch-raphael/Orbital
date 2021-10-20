@@ -28,7 +28,7 @@ namespace Ui
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddHttpClient<RodinHttpClient>();
+            services.AddHttpClient<OrbitalHttpClient>();
             services.AddScoped<FileUploader>();
             var customConfig = Configuration.GetSection(SharedOptions.SharedKey);
             services.Configure<SharedOptions>(customConfig);

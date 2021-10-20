@@ -1,56 +1,194 @@
-﻿<MatTreeView TNode="TreeNodeModel"
-             RootNode="@MyRootNode"
-             GetChildNodesCallback="@((n)=>n.Nodes)">
+﻿@using Ui.Services
+@using Shared.Dtos
+
+<MatTreeView 
+    TNode="FileTreeNodeModel"
+    RootNode="@FileTreeRootNode"
+    ExpandStateChanged="@ExpandState"
+    IsNodeExpandedCallback="@((n) => n.IsExpanded)"
+    GetChildNodesCallback="@((n) => n.ChildNodes)">        
+
     <NodeTemplate>
-        test
+        @if (!context.IsLeaf)
+        {
+        <span @onclick="() => { ExpandStateRecursively(context); }" class="material-icons keyboard_double_arrow_down">
+            keyboard_double_arrow_down
+        </span>
+        }
+        @context.PathPart
+        <MatCheckbox Value="context.IsChecked" ValueChanged="(bool c) => { UpdateCheckboxesRecursively(context, c); }"></MatCheckbox>
     </NodeTemplate>
 </MatTreeView>
 
+<style >
+    .keyboard_double_arrow_down {
+        vertical-align: middle;
+        margin-right: 0.5rem;
+    }
+</style>
+
 @code
 {
-    class TreeNodeModel
+    [Parameter]
+    public EventCallback<List<int>> UpdateFunctionIds { get; set; }
+
+    [Parameter]
+    public Payload SelectedPayload { get; set; }
+
+    [Inject]
+    private OrbitalHttpClient OrbitalHttpClient { get; set; }
+
+    private FileTreeNodeModel FileTreeRootNode { get; set; }
+    // private FileTreeNodeModel FileTreeRootNode = new FileTreeNodeModel()
+    // {
+    //     PathPart = "Payload",
+    //     ChildNodes = new FileTreeNodeModel[]
+    //     {
+    //
+    //     }
+    // };
+
+    protected override async Task OnInitializedAsync()
     {
-        public string Name { get; set; }
-        public TreeNodeModel[] Nodes { get; set; } = new TreeNodeModel[0];
+        var functions = await OrbitalHttpClient
+            .GetResourceListFromOrbital<Function>($"Payloads/{SelectedPayload.Id}/Functions");
+
+        var splitPathToFunction = functions
+            // +++ is an ugly hack so that I can access the id later.
+            .Select(f => f.File.Split("\\").Append($"{f.Name}+++{f.Id}").ToArray())
+            .Where(f => f[0].Length >= 1)
+            .ToList();
+
+        FileTreeRootNode = new FileTreeNodeModel()
+        {
+            ChildNodes = GetFileTree(splitPathToFunction),
+            PathPart = SelectedPayload.FileName,
+            IsRoot = true
+        };
+
     }
 
-    TreeNodeModel MyRootNode = new TreeNodeModel()
+
+    class FileTreeNodeModel
     {
-        Name = "Book",
-        Nodes = new TreeNodeModel[] {
-        new TreeNodeModel(){
-            Name = "Chapter 1",
-            Nodes = new TreeNodeModel[] {
-                new TreeNodeModel(){
-                    Name = "Heading",
-                },
-                new TreeNodeModel(){
-                    Name = "Content",
-                }
-            }
-        },
-        new TreeNodeModel(){
-            Name = "Chapter 2",
-            Nodes = new TreeNodeModel[] {
-                new TreeNodeModel(){
-                    Name = "Heading",
-                },
-                new TreeNodeModel(){
-                    Name = "Content",
-                }
-            }
-        },
-        new TreeNodeModel(){
-            Name = "Chapter 3",
-            Nodes = new TreeNodeModel[] {
-                new TreeNodeModel(){
-                    Name = "Heading",
-                },
-                new TreeNodeModel(){
-                    Name = "Content",
-                }
-            }
+        // ReSharper disable once InconsistentNaming
+        private bool _IsLeaf = false;
+        public string PathPart { get; set; }
+        public int FunctionId { get; set; } = 0;
+        public bool IsRoot { get; set; } = false;
+
+        public bool IsLeaf => ChildNodes.Length == 0;
+
+        public bool IsExpanded { get; set; } = false;
+        public bool IsChecked { get; set; } = true;
+        public FileTreeNodeModel[] ChildNodes { get; set; } = Array.Empty<FileTreeNodeModel>();
+    }
+
+    // /// <param name="splitFunctions">
+    // /// Example input data:
+    // /// <br/>splitFunctions[0].filesPathParts => ["C:", "users", "orbital", "source_file.c"]
+    // /// <br/>splitFunctions[0].Function => { id = 1, name = "functionA"}
+    // /// <br/>splitFunctions[1].filesPathParts => ["C:", "users", "orbital", "functions.c"]
+    // /// <br/>splitFunctions[1].Function => { id = 2, name = "functionB"}
+    // /// <br/>splitFunctions[2].filesPathParts => ["D:", "_agent", "studio", "lib.c"]
+    // /// <br/>splitFunctions[2].Function => { id = 3, name = "functionC"}
+    // /// </param>
+    // /// <param name="deepness">Current of level of recursiveness</param>
+    // /// <param name="prevNode">Node of previous recursion level</param>
+    // private FileTreeNodeModel[] GetFileTree(List<SplitFunctions> splitFunctions, FileTreeNodeModel prevNode = null, int deepness = 0)
+    // {
+    //     var deepEnoughFilesPathParts = splitFunctions.Where(f => f.FilePathParts.Length >= deepness + 1);
+    //     // currentLevelUniqPathParts => ["C:", "D:"]
+    //     var currentLevelUniqPathParts = deepEnoughFilesPathParts.Select(f => f.FilePathParts[deepness]).Distinct();
+    //     // nodesToAddToTree => [cNode, dNode]
+    //     var nodesToAddToTree = currentLevelUniqPathParts
+    //         .Select(p =>
+    //             new FileTreeNodeModel() { PathPart = p, ChildNodes = Array.Empty<FileTreeNodeModel>() }).ToList();
+    //     foreach (var node in nodesToAddToTree)
+    //     {
+    //         // i.e, if current node is "C:" for our example input data, filesPathPartsContainingCurrentNode will be
+    //         // splitFunctions.filesPathParts[0] => ["C:", "users", "orbital", "source_file.c", "functionA"]
+    //         // splitFunctions.filesPathParts[1] => ["C:", "users", "orbital", "functions.c", "functionB"]
+    //         var splitFunctionsContainingCurrentNode = 
+    //             splitFunctions.Where(p => p.FilePathParts[deepness] == node.PathPart).ToList();
+    //
+    //         node.ChildNodes = GetFileTree(splitFunctionsContainingCurrentNode, node, deepness + 1);
+    //
+    //         if (node.ChildNodes.Length != 0) continue;
+    //         node.ChildNodes[0].ChildNodes = splitFunctions.Select(f => )
+    //     }
+    //     return nodesToAddToTree.ToArray();
+    // }
+
+    /// <param name="filesPathParts">
+    /// Example input data:
+    /// <br/>filesPathParts[0] => ["C:", "users", "orbital", "source_file.c", "functionA"]
+    /// <br/>filesPathParts[1] => ["C:", "users", "orbital", "functions.c", "functionB"]
+    /// <br/>filesPathParts[2] => ["D:", "_agent", "studio", "lib.c", "functionC"]
+    /// </param>
+    /// <param name="deepness">Current of level of recursiveness</param>
+    /// <param name="prevNode">Node of previous recursion level</param>
+    private FileTreeNodeModel[] GetFileTree(List<string[]> filesPathParts, FileTreeNodeModel prevNode = null, int deepness = 0)
+    {
+        var deepEnoughFilesPathParts = filesPathParts.Where(f => f.Length >= deepness + 1);
+        // currentLevelUniqPathParts => ["C:", "D:"]
+        var currentLevelUniqPathParts = deepEnoughFilesPathParts.Select(f => f[deepness]).Distinct();
+        // nodesToAddToTree => [cNode, dNode]
+        var nodesToAddToTree = currentLevelUniqPathParts
+            .Select(p =>
+                new FileTreeNodeModel()
+                {
+                    PathPart = GetPathPartWithoutCanary(p), 
+                    ChildNodes = Array.Empty<FileTreeNodeModel>(),
+                    FunctionId = GetFunctionId(p)})
+            .ToList();
+
+        foreach (var node in nodesToAddToTree)
+        {
+            // i.e, if current node is "C:" for our example input data, filesPathPartsContainingCurrentNode will be
+            // filesPathParts[0] => ["C:", "users", "orbital", "source_file.c", "functionA"]
+            // filesPathParts[1] => ["C:", "users", "orbital", "functions.c", "functionB"]
+            var filesPathPartsContainingCurrentNode = filesPathParts.Where(p => p[deepness] == node.PathPart).ToList();
+            node.ChildNodes = GetFileTree(filesPathPartsContainingCurrentNode, node, deepness + 1);
+        }
+        return nodesToAddToTree.ToArray();
+    }
+
+    private int GetFunctionId(string pathPartNameWithId)
+    {
+
+        return pathPartNameWithId.Contains("+++") ? int.Parse(pathPartNameWithId.Split("+++")[1]) : 0;
+    }
+
+    private string GetPathPartWithoutCanary(string pathPartNameWithId)
+    {
+        return pathPartNameWithId.Split("+++")[0];
+    }
+
+
+
+    private void UpdateCheckboxesRecursively(FileTreeNodeModel node, bool isChecked)
+    {
+        node.IsChecked = isChecked;
+        foreach (var childNode in node.ChildNodes)
+        {
+            childNode.IsChecked = isChecked;
+            UpdateCheckboxesRecursively(childNode, isChecked);
         }
     }
-    };
+
+    private void ExpandStateRecursively(FileTreeNodeModel node)
+    {
+        node.IsExpanded = !node.IsExpanded;
+        foreach (var childNode in node.ChildNodes)
+        {
+            childNode.IsExpanded = !node.IsExpanded;
+            ExpandStateRecursively(childNode);
+        }
+    }
+
+    private void ExpandState(ExpandedStateChangedArgs<FileTreeNodeModel> expandedStateChangedArgs)
+    {
+        expandedStateChangedArgs.Node.IsExpanded = expandedStateChangedArgs.NewState;
+    }
 }

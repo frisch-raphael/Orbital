@@ -91,7 +91,7 @@ namespace Orbital.Controllers
                         Notifications.ScanStarted.ToString(),
                         new ScanResultWSMessage { Payload = payload, ScanResult = resultEntity.Entity });
                     var result = await antivirusClient.Scan(new string[] { payload.StoragePath });
-                    // This controler only takes one payload so only one result
+                    // This controller only takes one payload so only one result
                     resultEntity.Entity.IsFlagged = result[0].IsFlagged;
                     resultEntity.Entity.isDone = true;
                 }

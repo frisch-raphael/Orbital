@@ -18,7 +18,7 @@ namespace Ui.Pages
         private IMatToaster Toaster { get; set; }
 
         [Inject]
-        private RodinHttpClient RodinHttpClient { get; set; }
+        private OrbitalHttpClient OrbitalHttpClient { get; set; }
 
         private List<PayloadsPageTab> Tabs { get; set; } = new List<PayloadsPageTab>();
 
@@ -31,70 +31,28 @@ namespace Ui.Pages
             await SetTabsData();
         }
 
-
-        private async Task<List<Payload>> GetPayloads()
+        static private List<Payload> FilterPayloads(List<Payload> payloads, PayloadType type)
         {
-            var endpoint = "Payloads/";
-            var payloads = new List<Payload>();
-            var rodinClient = RodinHttpClient.Client;
-            HttpResponseMessage response = new();
-
-            try
-            {
-                response = await rodinClient.GetAsync(endpoint);
-            }
-            catch (Exception ex)
-            {
-                Toaster.Add(ex.Message, MatToastType.Danger);
-                return payloads;
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                await RodinHttpClient.ShowAndLogError(response);
-            }
-
-            using Stream responseStream = await response.Content.ReadAsStreamAsync();
-
-            payloads = await JsonHelper.DeserializeAsync<List<Payload>>(responseStream);
-
-
-            return payloads;
-        }
-
-        private List<Payload> FilterPayloads(List<Payload> payloads, PayloadType type)
-        {
-            if (payloads == null) return new List<Payload>();
-            return payloads.FindAll(p => p.PayloadType == type);
+            return payloads == null ? new List<Payload>() : payloads.FindAll(p => p.PayloadType == type);
         }
 
         private async Task SetTabsData()
         {
-            List<PayloadsPageTab> tabs = new List<PayloadsPageTab>();
+            List<PayloadsPageTab> tabs = new();
 
             foreach (PayloadType payloadType in Enum.GetValues(typeof(PayloadType)))
             {
                 var tab = new PayloadsPageTab();
-                var payloads = await GetPayloads();
+                var payloads = await OrbitalHttpClient.GetResourceListFromOrbital<Payload>("Payloads/");
                 tab.PayloadsToDisplay = FilterPayloads(payloads, payloadType);
-                switch (payloadType)
+                tab.Label = payloadType switch
                 {
-                    case PayloadType.NativeExecutable:
-                        tab.Label = "Native executables";
-                        break;
-                    case PayloadType.NativeLibrary:
-                        tab.Label = "Native libraries";
-                        break;
-                    case PayloadType.AssemblyExecutable:
-                        tab.Label = "Assembly executables";
-                        break;
-                    case PayloadType.AssemblyLibrary:
-                        tab.Label = "Assembly libraries";
-                        break;
-                    default:
-                        tab.Label = "Others";
-                        break;
-                }
+                    PayloadType.NativeExecutable => "Native executables",
+                    PayloadType.NativeLibrary => "Native libraries",
+                    PayloadType.AssemblyExecutable => "Assembly executables",
+                    PayloadType.AssemblyLibrary => "Assembly libraries",
+                    _ => "Others"
+                };
 
                 tabs.Add(tab);
             }
