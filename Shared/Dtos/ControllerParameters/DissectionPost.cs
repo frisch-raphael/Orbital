@@ -8,6 +8,8 @@ namespace Shared.Dtos
     {
         public int NumberOfDocker;
         public int PayloadId;
+        public SupportedAntivirus SupportedAntivirus;
+        public List<int> FunctionIds;
     }
 
 }

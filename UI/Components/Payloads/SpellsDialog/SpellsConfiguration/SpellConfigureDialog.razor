@@ -1,5 +1,7 @@
 ﻿@using Shared.Enums
 @using Shared.Dtos
+@using Ui.Pocos
+
 <MatDialog IsOpenChanged="@IsSpellDialogOpenChanged" IsOpen="IsSpellDialogOpen">
     <MatDialogTitle>Configure @SpellToLaunch?.Title</MatDialogTitle>
     <MatDialogContent>
@@ -10,10 +12,10 @@
             <MatSelectItem @bind-Value="ChosenAntivirus" Items="@Antiviruses" Label="Antivirus">
             </MatSelectItem>
         }
-        @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.FilesFromPayloadToScan) == true)
+        @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.FunctionsToScan) == true)
         {
             <MatH6>Choose the functions to scan</MatH6>
-            <FilesConfigure SelectedPayload="SelectedPayload"></FilesConfigure>
+        <FilesConfigure UpdateFunctionIds="(ids) => SelectedFunctionIds = ids" SelectedPayload="SelectedPayload"></FilesConfigure>
         }
 
     </MatDialogContent>
@@ -44,14 +46,20 @@
     public EventCallback<bool> OnIsSpellOpenChanged { get; set; }
 
     [Parameter]
-    public EventCallback<List<SupportedAntivirus>> OnConfigured { get; set; }
+    public EventCallback<LaunchSpellConfiguration> OnConfigured { get; set; }
+
+    public List<int> SelectedFunctionIds { get; set; }
 
     public List<SupportedAntivirus> Antiviruses { get; set; }
         = Enum.GetValues(typeof(SupportedAntivirus)).Cast<SupportedAntivirus>().ToList();
 
     private async Task LaunchScan()
     {
-        await OnConfigured.InvokeAsync(new List<SupportedAntivirus> { ChosenAntivirus });
+        await OnConfigured.InvokeAsync(new LaunchSpellConfiguration()
+        {
+            Antiviruses = new List<SupportedAntivirus>() { ChosenAntivirus }, 
+            FunctionIds = SelectedFunctionIds
+        });
     }
 
     private async Task IsSpellDialogOpenChanged(bool isSpellDialogOpen)
@@ -60,3 +68,5 @@
     }
 
 }
+
+

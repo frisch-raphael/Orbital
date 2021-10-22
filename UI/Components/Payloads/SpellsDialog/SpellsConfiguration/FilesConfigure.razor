@@ -16,7 +16,7 @@
         </span>
         }
         @context.PathPart
-        <MatCheckbox Value="context.IsChecked" ValueChanged="(bool c) => { UpdateCheckboxesRecursively(context, c); }"></MatCheckbox>
+        <MatCheckbox Value="context.IsChecked" ValueChanged="(bool c) => { UpdateSelectedFunctions(context, c); }"></MatCheckbox>
     </NodeTemplate>
 </MatTreeView>
 
@@ -29,6 +29,21 @@
 
 @code
 {
+    class FileTreeNodeModel
+    {
+    // ReSharper disable once InconsistentNaming
+        private bool _IsLeaf = false;
+        public string PathPart { get; set; }
+        public int FunctionId { get; set; } = 0;
+        public bool IsRoot { get; set; } = false;
+
+        public bool IsLeaf => ChildNodes.Length == 0;
+
+        public bool IsExpanded { get; set; } = false;
+        public bool IsChecked { get; set; } = true;
+        public FileTreeNodeModel[] ChildNodes { get; set; } = Array.Empty<FileTreeNodeModel>();
+    }
+
     [Parameter]
     public EventCallback<List<int>> UpdateFunctionIds { get; set; }
 
@@ -37,6 +52,8 @@
 
     [Inject]
     private OrbitalHttpClient OrbitalHttpClient { get; set; }
+
+    private List<int> FunctionIds { get; set; }
 
     private FileTreeNodeModel FileTreeRootNode { get; set; }
     // private FileTreeNodeModel FileTreeRootNode = new FileTreeNodeModel()
@@ -48,10 +65,11 @@
     //     }
     // };
 
+
     protected override async Task OnInitializedAsync()
     {
         var functions = await OrbitalHttpClient
-            .GetResourceListFromOrbital<Function>($"Payloads/{SelectedPayload.Id}/Functions");
+            .GetResourceListFromOrbital<List<Function>>($"Payloads/{SelectedPayload.Id}/Functions");
 
         var splitPathToFunction = functions
             // +++ is an ugly hack so that I can access the id later.
@@ -65,23 +83,16 @@
             PathPart = SelectedPayload.FileName,
             IsRoot = true
         };
+        InitFunctionIds(functions);
 
     }
 
-
-    class FileTreeNodeModel
+    private void InitFunctionIds(List<Function> functions)
     {
-        // ReSharper disable once InconsistentNaming
-        private bool _IsLeaf = false;
-        public string PathPart { get; set; }
-        public int FunctionId { get; set; } = 0;
-        public bool IsRoot { get; set; } = false;
-
-        public bool IsLeaf => ChildNodes.Length == 0;
-
-        public bool IsExpanded { get; set; } = false;
-        public bool IsChecked { get; set; } = true;
-        public FileTreeNodeModel[] ChildNodes { get; set; } = Array.Empty<FileTreeNodeModel>();
+        FunctionIds = functions
+            .Where(f => f.File.Length != 0)
+            .Select(f => f.Id).ToList();
+        UpdateFunctionIds.InvokeAsync(FunctionIds);
     }
 
     // /// <param name="splitFunctions">
@@ -165,16 +176,28 @@
         return pathPartNameWithId.Split("+++")[0];
     }
 
-
-
-    private void UpdateCheckboxesRecursively(FileTreeNodeModel node, bool isChecked)
+    private void UpdateSelectedFunctions(FileTreeNodeModel node, bool isChecked)
     {
+        UpdateStateRecursively(node, isChecked);
+        UpdateFunctionIds.InvokeAsync(FunctionIds);
+    }
+
+
+    private void UpdateStateRecursively(FileTreeNodeModel node, bool isChecked)
+    {
+
         node.IsChecked = isChecked;
+
         foreach (var childNode in node.ChildNodes)
         {
             childNode.IsChecked = isChecked;
-            UpdateCheckboxesRecursively(childNode, isChecked);
+            UpdateStateRecursively(childNode, isChecked);
         }
+
+        if (!node.IsLeaf) return;
+        if (!isChecked) FunctionIds.Remove(node.FunctionId);
+        else FunctionIds.Add(node.FunctionId); 
+
     }
 
     private void ExpandStateRecursively(FileTreeNodeModel node)
@@ -186,6 +209,7 @@
             ExpandStateRecursively(childNode);
         }
     }
+
 
     private void ExpandState(ExpandedStateChangedArgs<FileTreeNodeModel> expandedStateChangedArgs)
     {

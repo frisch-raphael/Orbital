@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using MatBlazor;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shared.Api.ApiErrors;
 using Shared.Config;
 using Shared.Dtos;
 using Shared.Static;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Ui.Services
 {
@@ -34,22 +38,31 @@ namespace Ui.Services
 
         public async Task ShowAndLogError(HttpResponseMessage httpErrorResponse)
         {
-            var errorResponse = await GetApiError(httpErrorResponse);
 
-            var method = httpErrorResponse.RequestMessage.Method;
-            var localPath = httpErrorResponse.RequestMessage.RequestUri.LocalPath;
+            var errorMessage = IsErrorFromApi(httpErrorResponse.StatusCode) ? 
+                (await GetApiError(httpErrorResponse)).Message : 
+                $"Status code is {httpErrorResponse.StatusCode}";
+
+
+                var method = httpErrorResponse.RequestMessage.Method;
+                var localPath = httpErrorResponse.RequestMessage.RequestUri.LocalPath;
 
 
             Logger.LogWarning(
                 "Error while trying to {Method} to '{Url}'. {ErrorMessage}",
                 method,
                 localPath,
-                errorResponse.Message);
+                errorMessage);
 
-            Toaster.Add($"Error while trying to {method} '{localPath}'. {errorResponse.Message}", MatToastType.Danger);
+            Toaster.Add($"Error while trying to {method} '{localPath}'. {errorMessage}", MatToastType.Danger);
         }
 
-        static private async Task<ApiError> GetApiError(HttpResponseMessage response)
+        private static bool IsErrorFromApi(HttpStatusCode statusCode)
+        {
+            return statusCode == HttpStatusCode.InternalServerError;
+        }
+
+        private static async Task<ApiError> GetApiError(HttpResponseMessage response)
         {
             await using var responseStream = await response.Content.ReadAsStreamAsync();
 
@@ -59,42 +72,13 @@ namespace Ui.Services
         }
 
         ///<param name="endpoint">endpoint of the resource to get. Should not begin with '/'</param>
-        public async Task<List<T>> GetResourceListFromOrbital<T>(string endpoint)
+        public async Task<T> GetResourceListFromOrbital<T>(string endpoint)
         {
-            var resources = new List<T>();
             HttpResponseMessage response;
 
             try
             {
                 response = await Client.GetAsync(endpoint);
-            }
-            catch (Exception ex)
-            {
-                Toaster.Add(ex.Message, MatToastType.Danger);
-                return resources;
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                await ShowAndLogError(response);
-            }
-
-            await using var responseStream = await response.Content.ReadAsStreamAsync();
-
-            resources = await JsonHelper.DeserializeAsync<List<T>>(responseStream);
-
-
-            return resources;
-        }
-
-        ///<param name="endpointWithId">endpoint of the resource to get, with the id of the resource. Should not begin with '/'.<br></br>i.e "Payloads/1"</param>
-        public async Task<T> GetResourceFromOrbital<T>(string endpointWithId)
-        {
-            HttpResponseMessage response;
-
-            try
-            {
-                response = await Client.GetAsync(endpointWithId);
             }
             catch (Exception ex)
             {
@@ -110,6 +94,32 @@ namespace Ui.Services
             await using var responseStream = await response.Content.ReadAsStreamAsync();
 
             return await JsonHelper.DeserializeAsync<T>(responseStream);
+
+
+        }
+
+
+        ///<param name="endpoint">endpoint of the resource to get. Should not begin with '/'</param>
+        ///<param name="postData">Object to post</param>
+        public async Task PostToOrbital(string endpoint, object postData)
+        {
+            HttpResponseMessage response = new();
+
+            try
+            {
+                response = await Client.PostAsync(endpoint, JsonHelper.SerializeAsync(postData));
+            }
+            catch (Exception ex)
+            {
+                Toaster.Add(ex.Message, MatToastType.Danger);
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                await ShowAndLogError(response);
+            }
+
+
         }
     }
 }

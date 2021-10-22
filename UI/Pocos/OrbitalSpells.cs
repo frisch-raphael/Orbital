@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using Shared.Enums;
 using Ui.Enums;
 
-namespace Ui.Dtos
+namespace Ui.Pocos
 {
 
 
     public class OrbitalSpell
     {
+        public ScanType ScanType { get; init; }
         public string Title { get; init; }
         public string Endpoint { get; init; }
         public string Description { get; init; }
@@ -23,6 +24,6 @@ namespace Ui.Dtos
 
     public class OrbitalScan : OrbitalSpell
     {
-
+     
     }
 }

@@ -31,7 +31,7 @@ namespace Ui.Pages
             await SetTabsData();
         }
 
-        static private List<Payload> FilterPayloads(List<Payload> payloads, PayloadType type)
+        private static List<Payload> FilterPayloads(List<Payload> payloads, PayloadType type)
         {
             return payloads == null ? new List<Payload>() : payloads.FindAll(p => p.PayloadType == type);
         }
@@ -43,7 +43,7 @@ namespace Ui.Pages
             foreach (PayloadType payloadType in Enum.GetValues(typeof(PayloadType)))
             {
                 var tab = new PayloadsPageTab();
-                var payloads = await OrbitalHttpClient.GetResourceListFromOrbital<Payload>("Payloads/");
+                var payloads = await OrbitalHttpClient.GetResourceListFromOrbital<List<Payload>>("Payloads/");
                 tab.PayloadsToDisplay = FilterPayloads(payloads, payloadType);
                 tab.Label = payloadType switch
                 {
