@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Orbital.Controllers;
 using Orbital.Model;
+using Orbital.Pocos;
 using Orbital.Static;
 using Shared.Dtos;
 using Shared.Enums;
@@ -22,7 +23,7 @@ namespace Orbital.Services
 
     public class PayloadFileStorer : FileStorer, IPayloadFileStorer
     {
-        public ILogger<PayloadsController> Logger { get; }
+        public ILogger<PayloadFileStorer> Logger { get; }
         private OrbitalContext OrbitalContext { get; }
         private HammerWrapper HammerWrapper { get; }
 
@@ -31,7 +32,7 @@ namespace Orbital.Services
 
 
         public PayloadFileStorer(
-            ILogger<PayloadsController> logger,
+            ILogger<PayloadFileStorer> logger,
             OrbitalContext rodinContext,
             HammerWrapper hammerWrapper,
             UploadedFile uploadedFile) : base(logger, uploadedFile)
@@ -70,37 +71,27 @@ namespace Orbital.Services
         private List<Function> GetFunctions(PayloadType payloadType)
         {
             // for now functions from all payload types are extracted from pdb
-            if (payloadType != PayloadType.Other)
-            {
-                return HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath);
-            }
-            return new List<Function>();
+            return payloadType != PayloadType.Other ? 
+                HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath) : 
+                new List<Function>();
         }
 
-        private string GetHash(Stream fileStream)
+        private static string GetHash(Stream fileStream)
         {
-            using (var md5 = MD5.Create())
-            {
-                using (var stream = fileStream)
-                {
-                    byte[] hashBytes = md5.ComputeHash(stream);
-                    return BitConverter.ToString(hashBytes).Replace("-", "");
-                }
-            }
+            using var md5 = MD5.Create();
+            using var stream = fileStream;
+            var hashBytes = md5.ComputeHash(stream);
+            return BitConverter.ToString(hashBytes).Replace("-", "");
         }
 
         private PayloadType GetPayloadType()
         {
-            switch (UploadedFile.Extension)
+            return UploadedFile.Extension switch
             {
-                case (".dll"):
-                    return PayloadType.NativeLibrary;
-                case (".exe"):
-                    return PayloadType.NativeExecutable;
-                default:
-                    return PayloadType.Other;
-            }
-
+                (".dll") => PayloadType.NativeLibrary,
+                (".exe") => PayloadType.NativeExecutable,
+                _ => PayloadType.Other
+            };
         }
 
     }

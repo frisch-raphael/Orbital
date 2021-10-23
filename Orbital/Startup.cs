@@ -98,6 +98,7 @@ namespace Orbital
             services.AddSingleton<IAntivirusContainerLauncherFactory, AntivirusContainerLauncherFactory>();
             services.AddSingleton<IScannerServiceFactory, ScannerServiceFactory>();
             services.AddSingleton<IAntivirusBackendFactory, AntivirusBackendFactory>();
+            services.AddSingleton<IPayloadDividerFactory, PayloadDividerFactory>();
             services.AddSingleton<AntivirusClientFactory>();
 
             services.AddSwaggerGenNewtonsoftSupport();

@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 
-namespace Orbital.Model
+namespace Orbital.Pocos
 {
     public class UploadedFile
     {
@@ -29,7 +29,7 @@ namespace Orbital.Model
             // random file name but keep extension
             StorageFileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(UntrustedFileName));
             TrustedFileName = WebUtility.HtmlEncode(file.FileName);
-            string workingDirectory = Environment.CurrentDirectory;
+            var workingDirectory = Environment.CurrentDirectory;
             UploadDirectory = Path.Combine(workingDirectory, "Uploads");
             StorageFullPath = Path.Combine(UploadDirectory, StorageFileName);
         }

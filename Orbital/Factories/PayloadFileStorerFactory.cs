@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Orbital.Controllers;
 using Orbital.Model;
+using Orbital.Pocos;
 using Orbital.Services;
 
 namespace Orbital.Factories
@@ -13,19 +14,19 @@ namespace Orbital.Factories
     public class PayloadFileStorerFactory : IPayloadFileStorerFactory
     {
 
-        private OrbitalContext RodinContext { get; }
-        private ILogger<PayloadsController> Logger { get; }
+        private OrbitalContext OrbitalContext { get; }
+        private ILogger<PayloadFileStorer> Logger { get; }
         private HammerWrapper HammerWrapper { get; }
         public IFunctionService FunctionService { get; }
 
         public PayloadFileStorerFactory(
-            ILogger<PayloadsController> logger,
-            OrbitalContext rodinContext,
+            ILogger<PayloadFileStorer> logger,
+            OrbitalContext orbitalContext,
             HammerWrapper hammerWrapper,
             IFunctionService functionService)
         {
             Logger = logger;
-            RodinContext = rodinContext;
+            OrbitalContext = orbitalContext;
             HammerWrapper = hammerWrapper;
             FunctionService = functionService;
         }
@@ -33,7 +34,7 @@ namespace Orbital.Factories
         public IPayloadFileStorer Create(UploadedFile uploaded)
         {
 
-            return new PayloadFileStorer(Logger, RodinContext, HammerWrapper, uploaded);
+            return new PayloadFileStorer(Logger, OrbitalContext, HammerWrapper, uploaded);
         }
     }
 }

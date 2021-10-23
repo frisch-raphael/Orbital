@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Orbital.Controllers;
-using Orbital.Model;
+using Orbital.Pocos;
 
 namespace Orbital.Services
 {
@@ -16,10 +16,10 @@ namespace Orbital.Services
     public class FileStorer : IFileService
     {
 
-        private readonly ILogger<PayloadsController> Logger;
+        private readonly ILogger<PayloadFileStorer> Logger;
 
         protected readonly UploadedFile UploadedFile;
-        public FileStorer(ILogger<PayloadsController> logger, UploadedFile uploadedFile)
+        public FileStorer(ILogger<PayloadFileStorer> logger, UploadedFile uploadedFile)
         {
             Logger = logger;
             UploadedFile = uploadedFile;
@@ -28,7 +28,7 @@ namespace Orbital.Services
         public async Task StoreFile()
         {
 
-            await using FileStream fs = new FileStream(UploadedFile.StorageFullPath, FileMode.Create);
+            await using var fs = new FileStream(UploadedFile.StorageFullPath, FileMode.Create);
             await UploadedFile.File.CopyToAsync(fs);
             Logger.LogInformation("{FileName} saved at {Path}",
                 UploadedFile.TrustedFileName, UploadedFile.StorageFullPath);
