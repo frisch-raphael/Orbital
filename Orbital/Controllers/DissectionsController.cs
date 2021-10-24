@@ -60,10 +60,14 @@ namespace Orbital.Controllers
         public async Task<ActionResult<List<ScanResult>>> Post(
             [Required] DissectionPost dissectionPost)
         {
-            var payload = OrbitalContext.Payloads.Single(p => p.Id == dissectionPost.PayloadId);
+            var payload = OrbitalContext.BackendPayloads.Single(p => p.Id == dissectionPost.PayloadId);
             var initialResults = new List<ScanResult>();
             var divider = PayloadDividerFactory.Create(payload);
-            payload.SubPayloads = divider.Divide();
+            // var subPayloads = OrbitalContext.SubPayloads.Where(p => p.Payload.Id == p.Id);
+            //
+            // OrbitalContext.RemoveRange(subPayloads);
+            // OrbitalContext.SubPayloads.AddRange(divider.Divide());
+
             await OrbitalContext.SaveChangesAsync();
             try
             {

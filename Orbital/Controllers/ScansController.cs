@@ -47,7 +47,7 @@ namespace Orbital.Controllers
         public ActionResult<List<ScanResult>> Post(
             [Required] ScanPost scanPost)
         {
-            var payload = OrbitalContext.Payloads.Single(p => p.Id == scanPost.PayloadId);
+            var payload = OrbitalContext.BackendPayloads.Single(p => p.Id == scanPost.PayloadId);
             var initialResults = new List<ScanResult>();
 
             async void ScanBody(SupportedAntivirus supportedAntivirus)

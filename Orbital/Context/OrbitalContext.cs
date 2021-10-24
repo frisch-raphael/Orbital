@@ -1,14 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Orbital.Pocos;
 using Shared.Dtos;
 
 namespace Orbital.Model
 {
-    public interface IOrbitalContext
-    {
-        DbSet<Payload> Payloads { get; set; }
-    }
 
-    public class OrbitalContext : DbContext, IOrbitalContext
+    public class OrbitalContext : DbContext
     {
         private string DbPath { get; set; }
 
@@ -27,13 +24,18 @@ namespace Orbital.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Payload>()
-            //    .HasMany(p => p.Functions)
-            //    .WithOne()
-            //    .IsRequired()
-            //    .OnDelete(DeleteBehavior.ClientCascade);
+            // modelBuilder.Entity<BackendPayload>()
+            //     .HasMany(p => p.Functions)
+            //     .WithOne()
+            //     .OnDelete(DeleteBehavior.ClientCascade);             
+            // modelBuilder.Entity<Function>()
+            //     .HasOne(f => f.BackendPayload)
+            //     .WithMany(p => p.Functions)
+            //     .OnDelete(DeleteBehavior.ClientCascade);  
         }
-        public DbSet<Payload> Payloads { get; set; }
+
+        public DbSet<BackendPayload> BackendPayloads { get; set; }
+        public DbSet<Function> Functions { get; set; }
         public DbSet<ScanResult> ScanResults { get; set; }
     }
 }

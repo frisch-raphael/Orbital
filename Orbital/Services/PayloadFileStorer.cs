@@ -16,7 +16,7 @@ namespace Orbital.Services
 {
     public interface IPayloadFileStorer
     {
-        Payload StorePayloadDataInDb();
+        BackendPayload StorePayloadDataInDb();
         Task StoreFile();
         void RollStorageBack();
     }
@@ -48,12 +48,12 @@ namespace Orbital.Services
         }
 
 
-        public Payload StorePayloadDataInDb()
+        public BackendPayload StorePayloadDataInDb()
         {
             var payloadType = GetPayloadType();
             var functions = GetFunctions(payloadType);
 
-            var payload = new Payload()
+            var payload = new BackendPayload()
             {
                 FileName = UploadedFile.TrustedFileName,
                 StoragePath = LocalPathes.UploadDirectory + UploadedFile.StorageFileName,
@@ -62,7 +62,7 @@ namespace Orbital.Services
                 PayloadType = GetPayloadType()
             };
 
-            OrbitalContext.Payloads.Add(payload);
+            OrbitalContext.BackendPayloads.Add(payload);
             OrbitalContext.SaveChanges();
             return payload;
 

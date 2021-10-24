@@ -21,15 +21,15 @@ namespace Orbital.Controllers
     public class PayloadsController : ControllerBase
     {
         private readonly ILogger<PayloadsController> Logger;
-        private readonly OrbitalContext RodinContext;
+        private readonly OrbitalContext OrbitalContext;
         private readonly IPayloadFileStorerFactory PayloadFileStorerFactory;
 
 
-        public PayloadsController(ILogger<PayloadsController> logger, IPayloadFileStorerFactory payloadStorerFactory, OrbitalContext rodinContext)
+        public PayloadsController(ILogger<PayloadsController> logger, IPayloadFileStorerFactory payloadStorerFactory, OrbitalContext orbitalContext)
         {
             Logger = logger;
             PayloadFileStorerFactory = payloadStorerFactory;
-            RodinContext = rodinContext;
+            OrbitalContext = orbitalContext;
         }
 
 
@@ -38,34 +38,33 @@ namespace Orbital.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<List<Payload>> Get()
         {
-            return Ok(RodinContext.Payloads.ToList());
+            var payloads = OrbitalContext.BackendPayloads.Select(b => new Payload(b)).ToList();
+            return Ok(payloads);
 
         }
 
         // GET api/<ValuesController>/5
-        [HttpGet("{id}/Functions")]
+        [HttpGet("{id:int}/Functions")]
         public ActionResult<List<Function>> GetFunctions([Required] int id)
         {
-            var payload = RodinContext.Payloads.Single(p => p.Id == id);
-            RodinContext.Entry(payload)
+            var payload = OrbitalContext.BackendPayloads.Single(p => p.Id == id);
+            OrbitalContext.Entry(payload)
                 .Collection(p => p.Functions)
                 .Load();
             return Ok(payload.Functions.ToList());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public ActionResult<Payload> Get([Required] int id, bool areFunctionsRequested)
         {
-            var payload = RodinContext.Payloads.Single(p => p.Id == id);
-            if (!areFunctionsRequested)
+            var backendPayload = OrbitalContext.BackendPayloads.Single(p => p.Id == id);
+            if (areFunctionsRequested)
             {
-                return Ok(payload);
+                OrbitalContext.Entry(backendPayload)
+                    .Collection(p => p.Functions)
+                    .Load();
             }
-            RodinContext.Entry(payload)
-                .Collection(p => p.Functions)
-                .Load();
-
-            return Ok(payload);
+            return Ok(new Payload(backendPayload));
         }
 
         // POST api/<ValuesController>
@@ -78,7 +77,7 @@ namespace Orbital.Controllers
         {
             var filePoco = new UploadedFile(file);
             var payloadFileStorer = PayloadFileStorerFactory.Create(filePoco);
-            Payload createdPayload;
+            BackendPayload createdPayload;
 
             try
             {
@@ -90,13 +89,13 @@ namespace Orbital.Controllers
             {
                 Logger.LogError("Error while trying to save {FileName}. {Message}",
                     filePoco.TrustedFileName, ex.Message);
-                if (System.IO.File.Exists(filePoco.StorageFullPath))
-                {
-                    // cleaning the file
-                    Logger.LogInformation("Cleaning {FileName}",
-                        filePoco.TrustedFileName);
-                    payloadFileStorer.RollStorageBack();
-                }
+                if (!System.IO.File.Exists(filePoco.StorageFullPath))
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        new InternalServerError("Error while trying to upload file"));
+                // cleaning the file
+                Logger.LogInformation("Cleaning {FileName}",
+                    filePoco.TrustedFileName);
+                payloadFileStorer.RollStorageBack();
                 return StatusCode(StatusCodes.Status500InternalServerError, new InternalServerError("Error while trying to upload file"));
             }
 
@@ -105,21 +104,22 @@ namespace Orbital.Controllers
         }
 
         // PUT api/<ValuesController>/5
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
         // DELETE api/<ValuesController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult Delete([Required] int id)
         {
-            var payloadToDelete = RodinContext.Payloads.FirstOrDefault(p => p.Id == id);
+            var payloadToDelete = OrbitalContext.BackendPayloads.FirstOrDefault(p => p.Id == id);
             if (payloadToDelete == null) return NotFound(new NotFoundError($"Payload with id {id} does not exist"));
-            RodinContext.Payloads.Remove(payloadToDelete);
-            RodinContext.SaveChanges();
+
+            OrbitalContext.Remove(payloadToDelete);
+            OrbitalContext.SaveChanges();
             return Ok();
 
         }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using Orbital.Model;
+using Orbital.Pocos;
 using Shared.Dtos;
 
 namespace Orbital.Services
@@ -15,9 +15,9 @@ namespace Orbital.Services
             Payload = payload;
         }
 
-        public ICollection<Payload> Divide()
+        public ICollection<SubPayload> Divide()
         {
-            return new List<Payload>() { new Payload(){FileName = "test" } };
+            return new List<SubPayload>() { new SubPayload(){FileName = "test", Payload = Payload } };
         }
     }
 }
