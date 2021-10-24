@@ -7,6 +7,8 @@ namespace Shared.Enums
     public enum Notifications
     {
         ScanDone,
-        ScanStarted
+        ScanStarted,
+        DissectionStarted,
+        DissectionDone
     }
 }

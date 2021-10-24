@@ -7,18 +7,18 @@ using Orbital.Tests.Static;
 using Shared.Dtos;
 using Xunit;
 
-namespace Orbital.Shared
+namespace Orbital.IntegrationTest
 {
     public class HammerWrapperTests
     {
         [Fact]
-        public void FetchFunctionsFromPdb_GetSimpleX86ExeFunctions()
+        public void FetchFunctionsFromPdb_GetSimpleX64ExeFunctions()
         {
             var expectedFunctions = GetSampleFunctions();
             var hammerWrapper = new HammerWrapper(new FunctionService());
             var actualFunctions = hammerWrapper.FetchFunctionsFromPdb(Samples.SimpleX64Exe.StoragePath);
 
-            bool areExpectedFunctionsFetched = expectedFunctions
+            var areExpectedFunctionsFetched = expectedFunctions
                 .All(expectedFunction => actualFunctions.Contains<Function>(expectedFunction));
             Assert.True(areExpectedFunctionsFetched, "Functions fetched from SimpleFunctions_x64.exe don't contain functions known to be in it");
         }
@@ -33,8 +33,9 @@ namespace Orbital.Shared
                 File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
                 FirstLine = 8,
                 AdressSection = 2,
-                AdressOffset = 2016,
+                AdressOffset = 1952,
                 Length = 41,
+                BackendPayloadId = 0
             });
             expectedFunctions.Add(new Function
             {
@@ -43,8 +44,9 @@ namespace Orbital.Shared
                 File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
                 FirstLine = 12,
                 AdressSection = 2,
-                AdressOffset = 2080,
+                AdressOffset = 2016,
                 Length = 37,
+                BackendPayloadId = 0
             });
             expectedFunctions.Add(new Function
             {
@@ -53,8 +55,9 @@ namespace Orbital.Shared
                 File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
                 FirstLine = 4,
                 AdressSection = 2,
-                AdressOffset = 1952,
+                AdressOffset = 1888,
                 Length = 48,
+                BackendPayloadId = 0
             });
 
             return expectedFunctions;

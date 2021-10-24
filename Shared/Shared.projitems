@@ -10,10 +10,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Config\Config.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\BackendPayload.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\DissectionPost.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\ScanPost.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ScanResult.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dtos\WebSocketMessages\ScanResultWSMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\WebSocketMessages\DissectionResultWsMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\WebSocketMessages\ScanResultWsMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\Notifications.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\SupportedAntivirus.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\PayloadType.cs" />

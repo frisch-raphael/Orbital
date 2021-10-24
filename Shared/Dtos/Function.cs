@@ -8,11 +8,12 @@ namespace Shared.Dtos
     public class Function : IEquatable<Function>
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public int BackendPayloadId { get; set; }
+        public string Name { get ;set; }
         public string File { get; set; }
         public int FirstLine { get; set; }
-        public System.UInt32 AdressSection { get; set; }
-        public System.UInt32 AdressOffset { get; set; }
+        public uint AdressSection { get; set; }
+        public uint AdressOffset { get; set; }
         public long Length { get; set; }
 
         public override string ToString()

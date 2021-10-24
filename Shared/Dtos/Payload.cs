@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Shared.ControllerResponses.Dtos;
 using Shared.Enums;
 
 namespace Shared.Dtos
@@ -11,9 +10,22 @@ namespace Shared.Dtos
         public ICollection<Function> Functions { get; set; }
         public string Hash { get; set; }
         public string FileName { get; set; }
-        public string StoragePath { get; set; }
         public PayloadType PayloadType { get; set; }
 
+        public Payload()
+        {
+
+        }
+
+        public Payload(BackendPayload backendPayload)
+        {
+            Id = backendPayload.Id;
+            FileName = backendPayload.FileName;
+            Functions = backendPayload.Functions;
+            Hash = backendPayload.Hash;
+            PayloadType = backendPayload.PayloadType;
+
+        }
     }
 
 

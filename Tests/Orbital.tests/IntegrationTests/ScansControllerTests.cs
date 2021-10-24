@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
+using Orbital.Shared;
 using Orbital.Shared.Static;
 using Shared.Enums;
 using Shared.Dtos;
@@ -17,10 +18,10 @@ using Xunit;
 using Orbital.Tests.Static;
 using Shared.ControllerResponses.Dtos;
 
-namespace Orbital.Shared.Post
+namespace Orbital.IntegrationTest
 {
 
-    public partial class ScansControllerTests : IClassFixture<OrbitalApiFactory>
+    public class ScansControllerTests : IClassFixture<OrbitalApiFactory>
     {
 
         private readonly OrbitalApiFactory Factory;

@@ -15,8 +15,8 @@ namespace Orbital.Shared.Static
             //db.Database.SetConnectionString("Data Source=rodintest.db");
             db.Database.EnsureDeleted();
             db.Database.EnsureCreated();
-            //db.Payloads.RemoveRange(db.Payloads);
-            db.Payloads.AddRange(Samples.PayloadSamples);
+            //db.BackendPayloads.RemoveRange(db.BackendPayloads);
+            db.BackendPayloads.AddRange(Samples.PayloadSamples);
             db.SaveChanges();
         }
 
