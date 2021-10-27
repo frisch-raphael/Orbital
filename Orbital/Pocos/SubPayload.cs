@@ -1,9 +1,16 @@
-﻿using Shared.Dtos;
+﻿using System.Collections.Generic;
+using Shared.Dtos;
 
 namespace Orbital.Pocos
 {
-    public class SubPayload : Payload
+    public class SubPayload
     {
-        public Payload Payload { get; set; }
+        public int Id { get; set; }
+
+        public int PayloadId { get; set; }
+
+        public string StoragePath { get; set; }
+
+        public List<Function> Functions { get; set; }
     }
 }

@@ -1,27 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Docker.DotNet;
-using Docker.DotNet.Models;
+﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.IO;
-using System;
-using Orbital.Services;
-using Orbital.Factories;
-using Shared.Enums;
-using Microsoft.Extensions.Logging;
-using Orbital.Model;
-using System.Linq;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
-using Shared.Dtos;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Rodin.Static;
-using Shared.ControllerResponses.Dtos;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Orbital.Classes;
-using Orbital.Services.Antivirus;
+using Orbital.Factories;
+using Orbital.Model;
+using Shared.ControllerResponses.Dtos;
+using Shared.Dtos;
+using Shared.Enums;
 
 namespace Orbital.Controllers
 {
@@ -29,7 +21,6 @@ namespace Orbital.Controllers
     [ApiController]
     public class DissectionsController : ControllerBase
     {
-
         private AntivirusClientFactory AntivirusesClientFactory;
         private readonly OrbitalContext OrbitalContext;
         private readonly IPayloadDividerFactory PayloadDividerFactory;
@@ -41,9 +32,9 @@ namespace Orbital.Controllers
         public DissectionsController(
             AntivirusClientFactory antivirusClientFactory,
             ILogger<DissectionsController> logger,
-            OrbitalContext orbitalContext, 
+            OrbitalContext orbitalContext,
             IPayloadDividerFactory payloadDividerFactory,
-            IServiceScopeFactory serviceScopeFactory, 
+            IServiceScopeFactory serviceScopeFactory,
             IHubContext<NotificationHub> hubContext)
         {
             AntivirusesClientFactory = antivirusClientFactory;
@@ -61,25 +52,23 @@ namespace Orbital.Controllers
             [Required] DissectionPost dissectionPost)
         {
             var payload = OrbitalContext.BackendPayloads.Single(p => p.Id == dissectionPost.PayloadId);
+            await OrbitalContext.Entry(payload)
+                .Collection(p => p.Functions)
+                .LoadAsync();
+
             var initialResults = new List<ScanResult>();
-            var divider = PayloadDividerFactory.Create(payload);
             // var subPayloads = OrbitalContext.SubPayloads.Where(p => p.Payload.Id == p.Id);
             //
             // OrbitalContext.RemoveRange(subPayloads);
             // OrbitalContext.SubPayloads.AddRange(divider.Divide());
 
             await OrbitalContext.SaveChangesAsync();
-            try
-            {
-                await HubContext.Clients.All.SendAsync(
-                    Notifications.DissectionStarted.ToString(),
-                    new DissectionResultWsMessage() { Payload = payload });
 
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Dissection with {Antivirus} failed : {ErrorMessage}", dissectionPost.SupportedAntivirus, ex.Message);
-            }
+            PayloadDividerFactory.Create(payload).Divide();
+            await HubContext.Clients.All.SendAsync(
+                Notifications.DissectionStarted.ToString(),
+                new DissectionResultWsMessage { Payload = payload });
+
 
             return Ok();
             //var scanTasks = new List<Task<List<ScanResult>>>();
@@ -150,7 +139,5 @@ namespace Orbital.Controllers
             //    //});
             //    return new CreatedResult(resourcePath, initialResults);
         }
-
-
     }
 }

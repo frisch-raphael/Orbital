@@ -12,10 +12,7 @@ namespace Shared.Dtos
         public string FileName { get; set; }
         public PayloadType PayloadType { get; set; }
 
-        public Payload()
-        {
-
-        }
+        public Payload() { }
 
         public Payload(BackendPayload backendPayload)
         {

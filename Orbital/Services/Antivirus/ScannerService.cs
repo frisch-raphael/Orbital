@@ -79,13 +79,13 @@ namespace Orbital.Services.Antivirus
 
 
         private async Task<ScanResult> Scan(DispatchedScan dispatchedScanTask,
-            ContainerExecCreateParameters ContainerExecCreateParams)
+            ContainerExecCreateParameters containerExecCreateParams)
         {
             await UploadPayload(dispatchedScanTask);
 
             Logger.LogInformation($"Launching scan for {dispatchedScanTask.FileToScanPath}");
             var created = await DockerClient.Exec
-                .ExecCreateContainerAsync(dispatchedScanTask.ContainerId, ContainerExecCreateParams);
+                .ExecCreateContainerAsync(dispatchedScanTask.ContainerId, containerExecCreateParams);
             var multiplexedStream = await DockerClient.Exec
                 .StartAndAttachContainerExecAsync(created.ID, true);
             Stream outputStream = new MemoryStream();
@@ -93,14 +93,14 @@ namespace Orbital.Services.Antivirus
             return new ScanResult()
             {
                 Antivirus = SupportedAntivirus,
-                IsFlagged = isResultPositive(outputStream, dispatchedScanTask.FileToScanPath),
+                IsFlagged = IsResultPositive(outputStream, dispatchedScanTask.FileToScanPath),
             }; ;
         }
 
 
         private async Task UploadPayload(DispatchedScan dispatchedScanTask)
         {
-            var tarStream = CreateTarGZ($"{dispatchedScanTask.FileToScanPath}");
+            var tarStream = CreateTarGz($"{dispatchedScanTask.FileToScanPath}");
             await DockerClient.Containers.ExtractArchiveToContainerAsync(
                 dispatchedScanTask.ContainerId,
                 new ContainerPathStatParameters()
@@ -109,11 +109,11 @@ namespace Orbital.Services.Antivirus
                 },
                 tarStream,
                 default);
-            tarStream.Dispose();
+            await tarStream.DisposeAsync();
         }
 
 
-        private Stream CreateTarGZ(string filePath)
+        private static Stream CreateTarGz(string filePath)
         {
             var outStream = new MemoryStream();
             using (var gzoStream = new GZipOutputStream(outStream))
@@ -141,7 +141,7 @@ namespace Orbital.Services.Antivirus
 
 
 
-        private bool isResultPositive(Stream outputStream, string payloadFileName)
+        private bool IsResultPositive(Stream outputStream, string payloadFileName)
         {
             outputStream.Position = 0;
             var outputResult = "";
@@ -154,17 +154,17 @@ namespace Orbital.Services.Antivirus
             return AntivirusBackend.OutputParser.Match(outputResult).Success;
         }
 
-        private List<DispatchedScan> DispatchScanToContainers(string[] payloadPathes, IList<ContainerListResponse> containers)
+        private List<DispatchedScan> DispatchScanToContainers(IEnumerable<string> payloadPathes, IList<ContainerListResponse> containers)
         {
-            List<DispatchedScan> dispatchedScanTasks = new List<DispatchedScan>();
+            var dispatchedScanTasks = new List<DispatchedScan>();
 
-            int i = 0;
+            var i = 0;
             foreach (var payloadPath in payloadPathes)
             {
                 var containerDoingTheScan = containers[i % containers.Count];
                 Logger.LogInformation($"{payloadPath} dispatched to {containerDoingTheScan.ID}");
                 dispatchedScanTasks.Add(new DispatchedScan() { FileToScanPath = payloadPath, ContainerId = containerDoingTheScan.ID });
-                i = i++;
+                i++;
             }
             return dispatchedScanTasks;
         }
