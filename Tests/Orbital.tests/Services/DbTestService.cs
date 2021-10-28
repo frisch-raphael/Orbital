@@ -24,10 +24,8 @@ namespace Orbital.Tests.Services
 
         private void Seed()
         {
-            using (var context = new OrbitalContext(ContextOptions))
-            {
-                DatabaseSeeding.InitializeDbForTests(context);
-            }
+            using var context = new OrbitalContext(ContextOptions);
+            DatabaseSeeding.InitializeDbForTests(context);
         }
     }
 }

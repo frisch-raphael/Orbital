@@ -1,23 +1,22 @@
 #include "pch.h"
+#include "pdbService.h"
 #include <exception>
+#include <filesystem>
+#include <iostream>
 #include <stdexcept>
 #include <system_error>
-#include <filesystem>
-#include "pdbService.h"
-#include <iostream>
 #include "functionService.h"
 
 Pdb::Pdb(const wchar_t* pdb_source_path)
 {
 	wchar_t extension[MAX_PATH];
-	const wchar_t* search_path = L"SRV**\\\\symbols\\symbols";  // Alternate path to search for debug data
 
 	if (!std::filesystem::exists(pdb_source_path))
 	{
 		throw std::runtime_error("File does not exist");
 	}
 
-	HRESULT hr = CoInitialize(NULL);
+	HRESULT hr = CoInitialize(nullptr);
 
 	// Obtain access to the provider
 	hr = CoCreateInstance(
@@ -48,6 +47,7 @@ Pdb::Pdb(const wchar_t* pdb_source_path)
 
 	else if (!_wcsicmp(extension, L".dll") || !_wcsicmp(extension, L".exe"))
 	{
+		const wchar_t* search_path = L"SRV**\\\\symbols\\symbols";
 		CCallback callback;  // Receives callbacks from the DIA symbol locating
 							 // procedure, thus enabling a user interface to report
 							 // on the progress of the location attempt. The client
@@ -162,7 +162,6 @@ std::vector<Function> Pdb::GetFunctions()
 std::optional<Function> Pdb::GetFunction(IDiaSymbol* p_symbol)
 {
 
-	BSTR source_filename;
 	BSTR undecorated_name;
 	p_symbol->get_undecoratedName(&undecorated_name);
 
@@ -172,8 +171,7 @@ std::optional<Function> Pdb::GetFunction(IDiaSymbol* p_symbol)
 		undecorated_name,
 		function.source_file_,
 		function.line_number_,
-		function.adress_section_,
-		function.adress_offset_,
+		function.virtual_adress_,
 		function.length_,
 	};
 

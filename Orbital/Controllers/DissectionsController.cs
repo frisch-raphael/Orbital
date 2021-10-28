@@ -64,7 +64,7 @@ namespace Orbital.Controllers
 
             await OrbitalContext.SaveChangesAsync();
 
-            PayloadDividerFactory.Create(payload).Divide();
+            PayloadDividerFactory.Create(payload).Divide(dissectionPost.FunctionIds);
             await HubContext.Clients.All.SendAsync(
                 Notifications.DissectionStarted.ToString(),
                 new DissectionResultWsMessage { Payload = payload });

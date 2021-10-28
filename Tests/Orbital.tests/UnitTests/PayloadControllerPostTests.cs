@@ -24,7 +24,7 @@ namespace Orbital.UniTests
     {
         public PayloadControllerPostTests() : base(
             new DbContextOptionsBuilder<OrbitalContext>()
-                .UseSqlite("Filename=Test.db")
+                .UseSqlite("Filename=PayloadPost.db")
                 .Options)
         {
         }

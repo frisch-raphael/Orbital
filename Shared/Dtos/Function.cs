@@ -12,8 +12,7 @@ namespace Shared.Dtos
         public string Name { get ;set; }
         public string File { get; set; }
         public int FirstLine { get; set; }
-        public uint AdressSection { get; set; }
-        public uint AdressOffset { get; set; }
+        public long VirtualAddress { get; set; }
         public long Length { get; set; }
 
         public override string ToString()

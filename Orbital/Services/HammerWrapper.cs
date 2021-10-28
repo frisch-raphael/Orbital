@@ -58,8 +58,7 @@ namespace Orbital.Services
         [MarshalAs(UnmanagedType.BStr), StringLength(300)]
         public string file;
         public int first_line;
-        public System.UInt32 adress_section;
-        public System.UInt32 adress_offset;
+        public long virtual_adress;
         public long length;
     };
 
@@ -83,23 +82,21 @@ namespace Orbital.Services
         public List<Function> FetchFunctionsFromPdb(string pathToPdbSource)
         {
 
-            int size;
-
-            HammerResponse response = GetFunctions(out size, pathToPdbSource);
+            var response = GetFunctions(out var size, pathToPdbSource);
 
             if (response.is_error) throw new Exception(response.error);
 
-            MarshalledFunction[] marshalledFunctions = new MarshalledFunction[size];
+            var marshalledFunctions = new MarshalledFunction[size];
 
-            int FunctionSize = Marshal.SizeOf(typeof(MarshalledFunction));
+            var functionSize = Marshal.SizeOf(typeof(MarshalledFunction));
 
-            for (int i = 0; i < size; i++)
+            for (var i = 0; i < size; i++)
             {
                 marshalledFunctions[i] = (MarshalledFunction)Marshal.PtrToStructure(response.pData, typeof(MarshalledFunction));
-                response.pData = IntPtr.Add(response.pData, FunctionSize);
+                response.pData = IntPtr.Add(response.pData, functionSize);
             }
 
-            List<Function> functions = marshalledFunctions.Select(marshalledFunction =>
+            var functions = marshalledFunctions.Select(marshalledFunction =>
                 FunctionService.CreateFunctionFromMarshalled(marshalledFunction)).ToList();
 
 

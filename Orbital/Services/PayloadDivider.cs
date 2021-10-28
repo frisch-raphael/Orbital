@@ -20,9 +20,11 @@ namespace Orbital.Services
             BackendPayload = backendPayload;
         }
 
-        public void Divide()
+        public void Divide(List<int> idsOfFunctionsInScope)
         {
-            foreach (var function in BackendPayload.Functions)
+            var functionsInScope = BackendPayload.Functions.Where(f => idsOfFunctionsInScope.Contains(f.Id));
+
+            foreach (var function in functionsInScope)
             {
                 Logger.LogInformation("Starting to divide payload {PayloadName}", BackendPayload.FileName);
                 ExtractAndStoreSubPayload(function);
@@ -33,7 +35,7 @@ namespace Orbital.Services
         {
             var subPayloadStorageFullPath = GetStorageFullPath(function);
             Directory.CreateDirectory(Path.GetDirectoryName(subPayloadStorageFullPath) ?? throw new InvalidOperationException());
-            File.Copy(BackendPayload.StoragePath,subPayloadStorageFullPath);
+            File.Copy(BackendPayload.StoragePath,subPayloadStorageFullPath, true);
             using var stream = new FileStream(subPayloadStorageFullPath, FileMode.Open, FileAccess.ReadWrite);
             CleanBeforeFunction(stream, function);
 
@@ -44,7 +46,7 @@ namespace Orbital.Services
             fs.Position = 0;
             using var binaryWriter = new BinaryWriter(fs);
 
-            binaryWriter.Write(Enumerable.Repeat((byte)0x00, (int)function.AdressOffset).ToArray());
+            binaryWriter.Write(Enumerable.Repeat((byte)0x00, (int)function.VirtualAddress).ToArray());
 
         }
 
@@ -52,7 +54,7 @@ namespace Orbital.Services
         {
             var subPayloadPath = Path.ChangeExtension(BackendPayload.StoragePath, null);
             var subPayloadStorageFileName = Regex.Replace(function.Name, "[^A-Za-z0-9 -]", string.Empty);
-            return $"{subPayloadPath}/{subPayloadStorageFileName}";
+            return $"{subPayloadPath}/{subPayloadStorageFileName}.raw";
         }
 
     }

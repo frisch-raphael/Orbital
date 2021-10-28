@@ -24,7 +24,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "nativeDebugging": false,
+      "nativeDebugging": true,
       "applicationUrl": "https://localhost:3333;http://localhost:33332"
     },
     "Docker": {

@@ -12,12 +12,10 @@ namespace Orbital.Static
         public static void LogStream(Stream stream, ILogger logger)
         {
             //stream.Position = 0;
-            using (var reader = new StreamReader(stream))
+            using var reader = new StreamReader(stream);
+            while (!reader.EndOfStream)
             {
-                while (!reader.EndOfStream)
-                {
-                    logger.LogInformation(reader.ReadLine());
-                }
+                logger.LogInformation(reader.ReadLine());
             }
         }
     }
