@@ -11,8 +11,17 @@ namespace Shared.Dtos
         public int BackendPayloadId { get; set; }
         public string Name { get ;set; }
         public string File { get; set; }
+        /// <summary>
+        /// The line at which the function begins
+        /// </summary>
         public int FirstLine { get; set; }
-        public long VirtualAddress { get; set; }
+        /// <summary>
+        /// For PEs, the offset in the file to the function (in bytes).
+        /// </summary>
+        public long Offset { get; set; }
+        /// <summary>
+        /// For PEs, the length of the function (in bytes).
+        /// </summary>
         public long Length { get; set; }
 
         public override string ToString()
@@ -22,8 +31,8 @@ namespace Shared.Dtos
 
         public bool Equals(Function other)
         {
-            CompareLogic compareLogic = new CompareLogic();
-            ComparisonResult result = compareLogic.Compare(this, other);
+            var compareLogic = new CompareLogic();
+            var result = compareLogic.Compare(this, other);
             return result.AreEqual;
         }
 

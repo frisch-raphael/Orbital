@@ -40,5 +40,5 @@ void FunctionService::locate(IDiaSession* p_session)
 	p_first_line->get_lineNumber(&this->line_number_);
 	p_source_file->get_fileName(&this->source_file_);
 	p_first_line->get_addressSection(&this->adress_section_);
-	p_first_line->get_virtualAddress(&this->virtual_adress_);
+	p_first_line->get_relativeVirtualAddress(&this->virtual_adress_);
 }

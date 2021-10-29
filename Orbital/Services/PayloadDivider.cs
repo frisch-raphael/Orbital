@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
-using Orbital.Pocos;
 using Shared.Dtos;
 
 namespace Orbital.Services
@@ -21,33 +22,43 @@ namespace Orbital.Services
         }
 
         public void Divide(List<int> idsOfFunctionsInScope)
-        {
-            var functionsInScope = BackendPayload.Functions.Where(f => idsOfFunctionsInScope.Contains(f.Id));
+{
+            Logger.LogInformation("Starting to Divide {PayloadName}", BackendPayload.FileName);
 
-            foreach (var function in functionsInScope)
-            {
-                Logger.LogInformation("Starting to divide payload {PayloadName}", BackendPayload.FileName);
-                ExtractAndStoreSubPayload(function);
-            }
-        }
+            var functionsInScope = BackendPayload.Functions.Where(f => idsOfFunctionsInScope.Contains(f.Id)).ToList();
 
-        private void ExtractAndStoreSubPayload(Function function)
+
+            Parallel.ForEachAsync(
+                functionsInScope, 
+                new ParallelOptions { MaxDegreeOfParallelism = 20 }, 
+                (function, _) => ExtractAndStoreSubPayload(
+                    function, 
+                    new FileStream(BackendPayload.StoragePath, FileMode.Open, FileAccess.Read)));
+
+  }
+
+        private async ValueTask ExtractAndStoreSubPayload(Function function, Stream payloadStream)
         {
+            Logger.LogInformation(
+                "Extracting function {FunctionName} from {PayloadName}", 
+                function.Name, BackendPayload.FileName);
             var subPayloadStorageFullPath = GetStorageFullPath(function);
             Directory.CreateDirectory(Path.GetDirectoryName(subPayloadStorageFullPath) ?? throw new InvalidOperationException());
-            File.Copy(BackendPayload.StoragePath,subPayloadStorageFullPath, true);
-            using var stream = new FileStream(subPayloadStorageFullPath, FileMode.Open, FileAccess.ReadWrite);
-            CleanBeforeFunction(stream, function);
+            var functionBytes = await ExtractSubPayloadBytes(function, payloadStream);
 
+            await using var subPayloadStream = new FileStream(subPayloadStorageFullPath, FileMode.Create, FileAccess.Write);
+            await subPayloadStream.WriteAsync(functionBytes);
+            // var bytes = Encoding.UTF8.GetBytes(content);
+            // await subPayloadStream.WriteAsync(bytes, 0, bytes.Length);
         }
 
-        private static void CleanBeforeFunction(Stream fs, Function function)
+        private static async Task<byte[]> ExtractSubPayloadBytes(Function function, Stream payloadStream)
         {
-            fs.Position = 0;
-            using var binaryWriter = new BinaryWriter(fs);
+            var functionBuffer = new byte[80000];
+            // payloadStream.Position = function.VirtualAddress;
+            await payloadStream.ReadAsync(functionBuffer);
 
-            binaryWriter.Write(Enumerable.Repeat((byte)0x00, (int)function.VirtualAddress).ToArray());
-
+            return functionBuffer;
         }
 
         private string GetStorageFullPath(Function function)

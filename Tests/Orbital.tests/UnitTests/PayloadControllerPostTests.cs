@@ -22,12 +22,6 @@ namespace Orbital.UniTests
 
     public class PayloadControllerPostTests : DbTestService
     {
-        public PayloadControllerPostTests() : base(
-            new DbContextOptionsBuilder<OrbitalContext>()
-                .UseSqlite("Filename=PayloadPost.db")
-                .Options)
-        {
-        }
 
         [Fact]
         public async Task PayloadPost_PostingSimpleExeShouldReturnSuccess()

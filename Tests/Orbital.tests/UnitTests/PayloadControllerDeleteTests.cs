@@ -14,12 +14,6 @@ namespace Orbital.UniTests
 
     public class PayloadControllerDeleteTests : DbTestService
     {
-        public PayloadControllerDeleteTests() : base(
-            new DbContextOptionsBuilder<OrbitalContext>()
-                .UseSqlite("Filename=Payload.db")
-                .Options)
-        {
-        }
 
         [Fact]
         public async Task PayloadDelete_DeletingPayloadShouldReturnSuccess()

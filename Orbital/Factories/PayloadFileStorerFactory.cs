@@ -34,7 +34,7 @@ namespace Orbital.Factories
         public IPayloadFileStorer Create(UploadedFile uploaded)
         {
 
-            return new PayloadFileStorer(Logger, OrbitalContext, HammerWrapper, uploaded);
+            return new PayloadFileStorer(Logger, OrbitalContext, HammerWrapper, uploaded, FunctionService);
         }
     }
 }

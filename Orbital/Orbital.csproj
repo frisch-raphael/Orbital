@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>951efe06-ae54-41e9-a61e-5afc779d8f34</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     <Platforms>AnyCPU;x64</Platforms>
@@ -30,6 +30,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AsmResolver" Version="4.7.1" />
+    <PackageReference Include="AsmResolver.DotNet" Version="4.7.1" />
+    <PackageReference Include="AsmResolver.PE" Version="4.7.1" />
+    <PackageReference Include="AsmResolver.PE.File" Version="4.7.1" />
     <PackageReference Include="CompareNETObjects" Version="4.73.0" />
     <PackageReference Include="Docker.DotNet" Version="3.125.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.8" />

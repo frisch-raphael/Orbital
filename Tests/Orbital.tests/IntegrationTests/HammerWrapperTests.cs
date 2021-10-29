@@ -33,7 +33,7 @@ namespace Orbital.IntegrationTest
                     Name = "private: void __cdecl Najin::ExecuteNajin(void)",
                     File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
                     FirstLine = 8,
-                    VirtualAddress = 71584,
+                    Offset = 71584,
                     Length = 41,
                     BackendPayloadId = 0
                 },
@@ -43,7 +43,7 @@ namespace Orbital.IntegrationTest
                     Name = "void __cdecl inlineNajin(void)",
                     File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
                     FirstLine = 12,
-                    VirtualAddress = 71648,
+                    Offset = 71648,
                     Length = 37,
                     BackendPayloadId = 0
                 },
@@ -53,7 +53,7 @@ namespace Orbital.IntegrationTest
                     Name = "private: __cdecl Najin::Najin(void)",
                     File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
                     FirstLine = 4,
-                    VirtualAddress = 71520,
+                    Offset = 71520,
                     Length = 48,
                     BackendPayloadId = 0
                 }

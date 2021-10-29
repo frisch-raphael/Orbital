@@ -58,7 +58,7 @@ namespace Orbital.Services
         [MarshalAs(UnmanagedType.BStr), StringLength(300)]
         public string file;
         public int first_line;
-        public long virtual_adress;
+        public int virtual_adress;
         public long length;
     };
 
@@ -79,7 +79,7 @@ namespace Orbital.Services
         [DllImport(HammerDllPath, CallingConvention = CallingConvention.Cdecl)]
         private static extern HammerResponse GetSourceFiles([Out] out int sizeReceiver);
 
-        public List<Function> FetchFunctionsFromPdb(string pathToPdbSource)
+        public List<MarshalledFunction> FetchFunctionsFromPdb(string pathToPdbSource)
         {
 
             var response = GetFunctions(out var size, pathToPdbSource);
@@ -96,11 +96,7 @@ namespace Orbital.Services
                 response.pData = IntPtr.Add(response.pData, functionSize);
             }
 
-            var functions = marshalledFunctions.Select(marshalledFunction =>
-                FunctionService.CreateFunctionFromMarshalled(marshalledFunction)).ToList();
-
-
-            return functions;
+            return marshalledFunctions.ToList();
         }
 
         //[DllImport(HammerDllPath, CallingConvention = CallingConvention.Cdecl)]

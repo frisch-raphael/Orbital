@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ namespace Orbital.Services
         private OrbitalContext OrbitalContext { get; }
         private HammerWrapper HammerWrapper { get; }
 
+        private readonly IFunctionService FunctionService;
         //private readonly Dictionary<PayloadType, Func<string, List<Function>>> GetFunctions =
         //    new Dictionary<PayloadType, Func<string, List<Function>>>();
 
@@ -35,11 +37,12 @@ namespace Orbital.Services
             ILogger<PayloadFileStorer> logger,
             OrbitalContext rodinContext,
             HammerWrapper hammerWrapper,
-            UploadedFile uploadedFile) : base(logger, uploadedFile)
+            UploadedFile uploadedFile, IFunctionService functionService) : base(logger, uploadedFile)
         {
             Logger = logger;
             OrbitalContext = rodinContext;
             HammerWrapper = hammerWrapper;
+            FunctionService = functionService;
             //GetFunctions[PayloadType.AssemblyExecutable] = hammerWrapper.FetchFunctionsFromPdb;
             //GetFunctions[PayloadType.AssemblyLibrary] = hammerWrapper.FetchFunctionsFromPdb;
             //GetFunctions[PayloadType.NativeExecutable] = hammerWrapper.FetchFunctionsFromPdb;
@@ -71,9 +74,14 @@ namespace Orbital.Services
         private List<Function> GetFunctions(PayloadType payloadType)
         {
             // for now functions from all payload types are extracted from pdb
-            return payloadType != PayloadType.Other ? 
-                HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath) : 
-                new List<Function>();
+            if (payloadType == PayloadType.Other) return new List<Function>();
+            var marshalledFunctions = HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath);
+
+
+            var functions = marshalledFunctions.Select(marshalledFunction =>
+                FunctionService.CreateFunctionFromMarshalled(marshalledFunction, UploadedFile.StorageFullPath)).ToList();
+
+            return functions;
         }
 
         private static string GetHash(Stream fileStream)

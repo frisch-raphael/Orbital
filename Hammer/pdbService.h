@@ -7,7 +7,7 @@ struct Function
 	BSTR name = SysAllocString(L"");
 	BSTR file = SysAllocString(L"");
 	int first_line = 0;
-	ULONGLONG virtual_adress = 0;
+	DWORD virtual_adress = 0;
 	ULONGLONG length = 0;
 };
 
