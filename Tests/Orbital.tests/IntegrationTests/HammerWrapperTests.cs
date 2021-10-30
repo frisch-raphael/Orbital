@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using FluentAssertions;
 using Orbital.Services;
 using Orbital.Shared.Static;
 using Orbital.Tests.Static;
@@ -15,47 +17,52 @@ namespace Orbital.IntegrationTest
         public void FetchFunctionsFromPdb_GetSimpleX64ExeFunctions()
         {
             var expectedFunctions = GetSampleFunctions();
-            var hammerWrapper = new HammerWrapper(new FunctionService());
-            var actualFunctions = hammerWrapper.FetchFunctionsFromPdb(Samples.SimpleX64Exe.StoragePath);
+            var hammerWrapper = new HammerWrapper();
+            var functionsFromPayload = hammerWrapper.FetchFunctionsFromPdb(Samples.SimpleX64Exe.StoragePath);
 
-            var areExpectedFunctionsFetched = expectedFunctions
-                .All(expectedFunction => actualFunctions.Contains<Function>(expectedFunction));
-            Assert.True(areExpectedFunctionsFetched, "Functions fetched from SimpleFunctions_x64.exe don't contain functions known to be in it");
+            foreach (var expectedFunction in expectedFunctions)
+            {
+                functionsFromPayload
+                    .Where(f => f.file == expectedFunction.file)
+                    .Where(f => f.virtual_adress == expectedFunction.virtual_adress)
+                    .Where(f => f.first_line == expectedFunction.first_line)
+                    .Where(f => f.name == expectedFunction.name)
+                    .Should()
+                    .NotBeEmpty($" function \"{expectedFunction.name}\" should be in {Path.GetFileName(Samples.SimpleX64Exe.StoragePath)}");
+            }
+
+            // var areExpectedFunctionsFetched = marshalledFunctions
+            //     .All(expectedFunction => actualFunctions.Contains<MarshalledFunction>(expectedFunction));
+            // Assert.True(areExpectedFunctionsFetched, "Functions fetched from SimpleFunctions_x64.exe don't contain functions known to be in it");
         }
 
-        private static IEnumerable<Function> GetSampleFunctions()
+        private static List<MarshalledFunction> GetSampleFunctions()
         {
-            var expectedFunctions = new List<Function>
+            var expectedFunctions = new List<MarshalledFunction>
             {
                 new()
                 {
-                    Id = 0,
-                    Name = "private: void __cdecl Najin::ExecuteNajin(void)",
-                    File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
-                    FirstLine = 8,
-                    Offset = 71584,
-                    Length = 41,
-                    BackendPayloadId = 0
+                    name = "private: void __cdecl Najin::ExecuteNajin(void)",
+                    file = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
+                    first_line = 8,
+                    virtual_adress = 71584,
+                    length = 41
                 },
                 new()
                 {
-                    Id = 0,
-                    Name = "void __cdecl inlineNajin(void)",
-                    File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
-                    FirstLine = 12,
-                    Offset = 71648,
-                    Length = 37,
-                    BackendPayloadId = 0
+                    name = "void __cdecl inlineNajin(void)",
+                    file = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
+                    first_line = 12,
+                    virtual_adress = 71648,
+                    length = 37
                 },
                 new()
                 {
-                    Id = 0,
-                    Name = "private: __cdecl Najin::Najin(void)",
-                    File = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
-                    FirstLine = 4,
-                    Offset = 71520,
-                    Length = 48,
-                    BackendPayloadId = 0
+                    name = "private: __cdecl Najin::Najin(void)",
+                    file = "C:\\Users\\rafou\\source\\repos\\HammerTest\\SimpleFunctions\\najin.cpp",
+                    first_line = 4,
+                    virtual_adress = 71520,
+                    length = 48
                 }
             };
 

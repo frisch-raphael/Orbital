@@ -10,6 +10,7 @@ using Orbital.Attributes;
 using Orbital.Factories;
 using Orbital.Model;
 using Orbital.Pocos;
+using Orbital.Services;
 using Shared.Api.ApiErrors;
 using Shared.Dtos;
 
@@ -23,13 +24,14 @@ namespace Orbital.Controllers
         private readonly ILogger<PayloadsController> Logger;
         private readonly OrbitalContext OrbitalContext;
         private readonly IPayloadFileStorerFactory PayloadFileStorerFactory;
+        private readonly IPayloadDeleter PayloadCleaner;
 
-
-        public PayloadsController(ILogger<PayloadsController> logger, IPayloadFileStorerFactory payloadStorerFactory, OrbitalContext orbitalContext)
+        public PayloadsController(ILogger<PayloadsController> logger, IPayloadFileStorerFactory payloadStorerFactory, OrbitalContext orbitalContext, IPayloadDeleter payloadCleaner)
         {
             Logger = logger;
             PayloadFileStorerFactory = payloadStorerFactory;
             OrbitalContext = orbitalContext;
+            PayloadCleaner = payloadCleaner;
         }
 
 
@@ -89,13 +91,15 @@ namespace Orbital.Controllers
             {
                 Logger.LogError("Error while trying to save {FileName}. {Message}",
                     filePoco.TrustedFileName, ex.Message);
-                if (!System.IO.File.Exists(filePoco.StorageFullPath))
-                    return StatusCode(StatusCodes.Status500InternalServerError,
-                        new InternalServerError("Error while trying to upload file"));
-                // cleaning the file
-                Logger.LogInformation("Cleaning {FileName}",
-                    filePoco.TrustedFileName);
-                payloadFileStorer.RollStorageBack();
+
+                // ReSharper disable once InvertIf
+                if (System.IO.File.Exists(filePoco.StorageFullPath))
+                {
+                    // cleaning the file
+                    Logger.LogInformation("Cleaning {FileName}", filePoco.TrustedFileName);
+                    payloadFileStorer.RollStorageBack();
+
+                }
                 return StatusCode(StatusCodes.Status500InternalServerError, new InternalServerError("Error while trying to upload file"));
             }
 
@@ -117,7 +121,7 @@ namespace Orbital.Controllers
         {
             var payloadToDelete = OrbitalContext.BackendPayloads.FirstOrDefault(p => p.Id == id);
             if (payloadToDelete == null) return NotFound(new NotFoundError($"Payload with id {id} does not exist"));
-
+            PayloadCleaner.Clean(payloadToDelete);
             OrbitalContext.Remove(payloadToDelete);
             OrbitalContext.SaveChanges();
             return Ok();

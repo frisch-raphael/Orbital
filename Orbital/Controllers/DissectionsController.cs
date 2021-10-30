@@ -56,15 +56,8 @@ namespace Orbital.Controllers
                 .Collection(p => p.Functions)
                 .LoadAsync();
 
-            var initialResults = new List<ScanResult>();
-            // var subPayloads = OrbitalContext.SubPayloads.Where(p => p.Payload.Id == p.Id);
-            //
-            // OrbitalContext.RemoveRange(subPayloads);
-            // OrbitalContext.SubPayloads.AddRange(divider.Divide());
-
-            await OrbitalContext.SaveChangesAsync();
-
             PayloadDividerFactory.Create(payload).Divide(dissectionPost.FunctionIds);
+
             await HubContext.Clients.All.SendAsync(
                 Notifications.DissectionStarted.ToString(),
                 new DissectionResultWsMessage { Payload = payload });

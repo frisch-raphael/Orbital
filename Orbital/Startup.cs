@@ -100,12 +100,13 @@ namespace Orbital
             services.AddSingleton<IAntivirusBackendFactory, AntivirusBackendFactory>();
             services.AddSingleton<IPayloadDividerFactory, PayloadDividerFactory>();
             services.AddSingleton<IPeFunctionOffsetGetter, PeFunctionOffsetGetter>();
+            services.AddSingleton<IPayloadDeleter, PayloadDeleter>();
             services.AddSingleton<AntivirusClientFactory>();
 
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NajiN Rodin API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Orbital API", Version = "v1" });
             });
         }
 

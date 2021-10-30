@@ -54,8 +54,8 @@ namespace Orbital.Services
 
         private static async Task<byte[]> ExtractSubPayloadBytes(Function function, Stream payloadStream)
         {
-            var functionBuffer = new byte[80000];
-            // payloadStream.Position = function.VirtualAddress;
+            var functionBuffer = new byte[function.Length];
+            payloadStream.Position = function.Offset;
             await payloadStream.ReadAsync(functionBuffer);
 
             return functionBuffer;

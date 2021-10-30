@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,25 +49,25 @@ namespace Orbital.Services.Antivirus
             IList<ContainerListResponse> containers)
         {
 
-            Logger.LogInformation($"cmd lines configured: {String.Join(' ', AntivirusBackend.GetFullCmd("[[PAYLOADNAME]]"))}");
+            Logger.LogInformation($"cmd lines configured: {string.Join(' ', AntivirusBackend.GetFullCmd("[[PAYLOAD_NAME]]"))}");
 
-            List<DispatchedScan> dispatchedScanTasks = DispatchScanToContainers(payloadPathes, containers);
+            var dispatchedScanTasks = DispatchScanToContainers(payloadPathes, containers);
 
-            List<Task<ScanResult>> scanTasks = new List<Task<ScanResult>>();
+            var scanTasks = new List<Task<ScanResult>>();
 
 
             foreach (var dispatchedScanTask in dispatchedScanTasks)
             {
-                var FullCmd = AntivirusBackend.GetFullCmd(Path.GetFileName(dispatchedScanTask.FileToScanPath));
-                var ContainerExecCreateParams = new ContainerExecCreateParameters
+                var fullCmd = AntivirusBackend.GetFullCmd(Path.GetFileName(dispatchedScanTask.FileToScanPath));
+                var containerExecCreateParams = new ContainerExecCreateParameters
                 {
                     AttachStderr = true,
                     AttachStdin = true,
                     AttachStdout = true,
-                    Cmd = FullCmd
+                    Cmd = fullCmd
                 };
 
-                scanTasks.Add(Scan(dispatchedScanTask, ContainerExecCreateParams));
+                scanTasks.Add(Scan(dispatchedScanTask, containerExecCreateParams));
 
             }
 

@@ -10,7 +10,7 @@ namespace Orbital.Services.Antivirus
 {
     public interface IAntivirusContainerLauncher
     {
-        public Task<IList<ContainerListResponse>> prepareContainers(int numberOfInstances);
+        public Task<IList<ContainerListResponse>> PrepareContainers(int numberOfInstances);
     }
 
     public class AntivirusContainerLauncher : IAntivirusContainerLauncher
@@ -27,7 +27,7 @@ namespace Orbital.Services.Antivirus
             ParentImageName = parentImageName;
         }
 
-        public async Task<IList<ContainerListResponse>> prepareContainers(int numberOfInstancesRequested)
+        public async Task<IList<ContainerListResponse>> PrepareContainers(int numberOfInstancesRequested)
         {
 
             Logger.LogInformation($"{numberOfInstancesRequested} container(s) for {ParentImageName} requested");

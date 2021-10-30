@@ -40,12 +40,18 @@ namespace Orbital.Services.Antivirus
         }
 
 
-        public async Task<List<ScanResult>> Scan(string[] payloadsFileName)
+        public async Task<List<ScanResult>> Scan(string[] payloadsFileName, int maxNumberOfDockerContainer = 10)
         {
             Logger.LogInformation($"Setup for {Antivirus} started");
             await ImageBuilder.Build(Antivirus);
-            var containers = await ContainerLauncher.prepareContainers(1);
+            var numDockers = GetNumberOfDocker(maxNumberOfDockerContainer, payloadsFileName.Length);
+            var containers = await ContainerLauncher.PrepareContainers(numDockers);
             return await Scanner.LaunchScans(payloadsFileName, containers);
+        }
+
+        public int GetNumberOfDocker(int maxNumberOfDockerContainer, int numberOfFileToScan)
+        {
+            return numberOfFileToScan >= maxNumberOfDockerContainer ? maxNumberOfDockerContainer : numberOfFileToScan;
         }
     }
 }

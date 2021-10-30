@@ -66,13 +66,6 @@ namespace Orbital.Services
     {
         private const string HammerDllPath = "Hammer.dll";
 
-        public IFunctionService FunctionService { get; }
-
-        public HammerWrapper(IFunctionService functionService)
-        {
-            FunctionService = functionService;
-        }
-
         [DllImport(HammerDllPath, CallingConvention = CallingConvention.Cdecl)]
         private static extern HammerResponse GetFunctions([Out] out int sizeReceiver, [MarshalAs(UnmanagedType.BStr)] string pePath);
 

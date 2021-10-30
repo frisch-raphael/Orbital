@@ -14,19 +14,16 @@ namespace Orbital.Factories
     public class PayloadFileStorerFactory : IPayloadFileStorerFactory
     {
 
-        private OrbitalContext OrbitalContext { get; }
         private ILogger<PayloadFileStorer> Logger { get; }
         private HammerWrapper HammerWrapper { get; }
         public IFunctionService FunctionService { get; }
 
         public PayloadFileStorerFactory(
             ILogger<PayloadFileStorer> logger,
-            OrbitalContext orbitalContext,
             HammerWrapper hammerWrapper,
             IFunctionService functionService)
         {
             Logger = logger;
-            OrbitalContext = orbitalContext;
             HammerWrapper = hammerWrapper;
             FunctionService = functionService;
         }
@@ -34,7 +31,7 @@ namespace Orbital.Factories
         public IPayloadFileStorer Create(UploadedFile uploaded)
         {
 
-            return new PayloadFileStorer(Logger, OrbitalContext, HammerWrapper, uploaded, FunctionService);
+            return new PayloadFileStorer(Logger, HammerWrapper, uploaded, FunctionService);
         }
     }
 }
