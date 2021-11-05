@@ -16,6 +16,7 @@
     public enum SpellConfiguration
     {
         AntivirusToUse,
-        FunctionsToScan
+        FunctionsToScan,
+        NumberOfDockers
     }
 }

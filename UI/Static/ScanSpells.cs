@@ -36,7 +36,7 @@ namespace Ui.Static
             Image = "images/dissect.png",
             SupportedPayloads = new List<PayloadType> { PayloadType.NativeExecutable, PayloadType.NativeLibrary },
             ConfigurationNeeded = new List<SpellConfiguration> 
-                { SpellConfiguration.AntivirusToUse, SpellConfiguration.FunctionsToScan }
+                { SpellConfiguration.AntivirusToUse, SpellConfiguration.FunctionsToScan, SpellConfiguration.NumberOfDockers }
         };
 
         public static List<OrbitalScan> AllScanSpells => new List<OrbitalScan>() { ScanWithAll, SimpleScan, Dissection };

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Shared.Enums;
 using Shared.Dtos;
 using System.Linq;
+using Orbital.Pocos;
 using Orbital.Services.AntivirusBackends;
 
 namespace Orbital.Services.Antivirus
@@ -23,10 +25,10 @@ namespace Orbital.Services.Antivirus
 
     public class ScannerService : IScannerService
     {
-        private class DispatchedScan
+        private class DispatchedScans
         {
-            public string ContainerId;
-            public string FileToScanPath;
+            public string ContainerId { get; init; }
+            public List<string> FilesToScanPathes { get; set; }
         }
 
         private SupportedAntivirus SupportedAntivirus { get; init; }
@@ -51,14 +53,22 @@ namespace Orbital.Services.Antivirus
 
             Logger.LogInformation($"cmd lines configured: {string.Join(' ', AntivirusBackend.GetFullCmd("[[PAYLOAD_NAME]]"))}");
 
-            var dispatchedScanTasks = DispatchScanToContainers(payloadPathes, containers);
+            var dispatchedScansTasks = DispatchScanToContainers(payloadPathes.ToList(), containers);
 
-            var scanTasks = new List<Task<ScanResult>>();
+            var scanBatchTasks = dispatchedScansTasks.Select(ScanBatch).ToList();
 
+            await Task.WhenAll(scanBatchTasks.ToArray());
 
-            foreach (var dispatchedScanTask in dispatchedScanTasks)
+            return scanBatchTasks.SelectMany(st => st.Result).ToList();
+        }
+
+        private async Task<List<ScanResult>> ScanBatch(DispatchedScans dispatchedScans)
+        {
+            var scanResults = new List<ScanResult>();
+
+            foreach (var fileToScanPath in dispatchedScans.FilesToScanPathes)
             {
-                var fullCmd = AntivirusBackend.GetFullCmd(Path.GetFileName(dispatchedScanTask.FileToScanPath));
+                var fullCmd = AntivirusBackend.GetFullCmd(Path.GetFileName(fileToScanPath));
                 var containerExecCreateParams = new ContainerExecCreateParameters
                 {
                     AttachStderr = true,
@@ -67,41 +77,51 @@ namespace Orbital.Services.Antivirus
                     Cmd = fullCmd
                 };
 
-                scanTasks.Add(Scan(dispatchedScanTask, containerExecCreateParams));
-
+                scanResults.Add(await Scan(fileToScanPath, dispatchedScans.ContainerId, containerExecCreateParams));
             }
 
-            await Task.WhenAll(scanTasks.ToArray());
-
-            return scanTasks.Select(st => st.Result).ToList();
+            return scanResults;
         }
 
 
-        private async Task<ScanResult> Scan(DispatchedScan dispatchedScanTask,
+        private async Task<ScanResult> Scan(string payloadPath,
+            string containerId,
             ContainerExecCreateParameters containerExecCreateParams)
         {
-            await UploadPayload(dispatchedScanTask);
-
-            Logger.LogInformation($"Launching scan for {dispatchedScanTask.FileToScanPath}");
-            var created = await DockerClient.Exec
-                .ExecCreateContainerAsync(dispatchedScanTask.ContainerId, containerExecCreateParams);
-            var multiplexedStream = await DockerClient.Exec
-                .StartAndAttachContainerExecAsync(created.ID, true);
-            Stream outputStream = new MemoryStream();
-            await multiplexedStream.CopyOutputToAsync(null, outputStream, outputStream, default);
-            return new ScanResult()
+            var scanResult = new ScanResult()
             {
-                Antivirus = SupportedAntivirus,
-                IsFlagged = IsResultPositive(outputStream, dispatchedScanTask.FileToScanPath),
-            }; ;
+                FilePath = payloadPath,
+                FlaggedState = FlaggedState.Unknown,
+                IsError = true
+            };
+            try
+            {
+                await UploadPayload(payloadPath, containerId);
+
+                Logger.LogInformation($"Launching scan for {payloadPath}");
+                var created = await DockerClient.Exec
+                    .ExecCreateContainerAsync(containerId, containerExecCreateParams);
+                var multiplexedStream = await DockerClient.Exec
+                    .StartAndAttachContainerExecAsync(created.ID, true);
+                Stream outputStream = new MemoryStream();
+                await multiplexedStream.CopyOutputToAsync(null, outputStream, outputStream, default);
+                scanResult.FlaggedState = IsResultPositive(outputStream, containerId) ? FlaggedState.Positive : FlaggedState.Negative;
+                scanResult.IsError = false;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error while trying to scan payload :" + ex.Message);
+            }
+
+            return scanResult;
         }
 
 
-        private async Task UploadPayload(DispatchedScan dispatchedScanTask)
+        private async Task UploadPayload(string payloadPath, string containerId)
         {
-            var tarStream = CreateTarGz($"{dispatchedScanTask.FileToScanPath}");
+            var tarStream = CreateTarGz($"{payloadPath}");
             await DockerClient.Containers.ExtractArchiveToContainerAsync(
-                dispatchedScanTask.ContainerId,
+                containerId,
                 new ContainerPathStatParameters()
                 {
                     Path = "/"
@@ -147,25 +167,34 @@ namespace Orbital.Services.Antivirus
             using (var reader = new StreamReader(outputStream))
             {
                 outputResult = reader.ReadToEnd();
-                Logger.LogInformation($"Output from {SupportedAntivirus} for {payloadFileName} : {outputResult}");
+                Logger.LogInformation($"Output from {SupportedAntivirus} for {payloadFileName} : \n{outputResult}");
             }
             outputStream.Dispose();
             return AntivirusBackend.OutputParser.Match(outputResult).Success;
         }
 
-        private List<DispatchedScan> DispatchScanToContainers(IEnumerable<string> payloadPathes, IList<ContainerListResponse> containers)
+        private IEnumerable<DispatchedScans> DispatchScanToContainers(List<string> payloadPathes, IList<ContainerListResponse> containers)
         {
-            var dispatchedScanTasks = new List<DispatchedScan>();
+
+            // containers
+            //
+            // var numberOfScansPerContainer = payloadPathes.Count() / containers.Count();
+
+            var dispatchedScansWithContainerId= containers.Select(c => new DispatchedScans()
+                {
+                    ContainerId = c.ID, 
+                    FilesToScanPathes = new List<string>()
+                }).ToList();
 
             var i = 0;
             foreach (var payloadPath in payloadPathes)
             {
                 var containerDoingTheScan = containers[i % containers.Count];
                 Logger.LogInformation($"{payloadPath} dispatched to {containerDoingTheScan.ID}");
-                dispatchedScanTasks.Add(new DispatchedScan() { FileToScanPath = payloadPath, ContainerId = containerDoingTheScan.ID });
+                dispatchedScansWithContainerId.Single(d => d.ContainerId == containerDoingTheScan.ID).FilesToScanPathes.Add(payloadPath);
                 i++;
             }
-            return dispatchedScanTasks;
+            return dispatchedScansWithContainerId;
         }
 
 

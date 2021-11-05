@@ -34,6 +34,7 @@
     <PackageReference Include="AsmResolver.DotNet" Version="4.7.1" />
     <PackageReference Include="AsmResolver.PE" Version="4.7.1" />
     <PackageReference Include="AsmResolver.PE.File" Version="4.7.1" />
+    <PackageReference Include="AsyncAwaitBestPractices" Version="6.0.2" />
     <PackageReference Include="CompareNETObjects" Version="4.73.0" />
     <PackageReference Include="Docker.DotNet" Version="3.125.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.8" />
@@ -82,6 +83,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="DockerFiles\McAfee\Dockerfile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="DockerFiles\TestAntivir\Dockerfile">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

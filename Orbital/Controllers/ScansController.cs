@@ -32,7 +32,8 @@ namespace Orbital.Controllers
         public ScansController(
             AntivirusClientFactory antivirusClientFactory,
             ILogger<ScansController> logger,
-            OrbitalContext orbitalContext, IServiceScopeFactory serviceScopeFactory, IHubContext<NotificationHub> hubContext)
+            OrbitalContext orbitalContext, IServiceScopeFactory serviceScopeFactory, 
+            IHubContext<NotificationHub> hubContext)
         {
             AntivirusesClientFactory = antivirusClientFactory;
             Logger = logger;
@@ -44,11 +45,11 @@ namespace Orbital.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public ActionResult<List<ScanResult>> Post(
+        public ActionResult<List<Scan>> Post(
             [Required] ScanPost scanPost)
         {
             var payload = OrbitalContext.BackendPayloads.Single(p => p.Id == scanPost.PayloadId);
-            var initialResults = new List<ScanResult>();
+            var initialResults = new List<Scan>();
 
             async void ScanBody(SupportedAntivirus supportedAntivirus)
             {
@@ -56,7 +57,13 @@ namespace Orbital.Controllers
                 var orbitalContext = scope.ServiceProvider.GetRequiredService<OrbitalContext>();
 
                 var antivirusClient = AntivirusesClientFactory.Create(supportedAntivirus);
-                var initialResult = new ScanResult() { Antivirus = supportedAntivirus, PayloadId = payload.Id, ScanDate = DateTime.Now };
+                var initialResult = new Scan()
+                {
+                    Antivirus = supportedAntivirus,
+                    PayloadId = payload.Id, 
+                    ScanDate = DateTime.Now,
+                    OperationState = OperationState.Ongoing
+                };
 
                 var resultEntity = orbitalContext.ScanResults.Add(initialResult);
                 initialResult.Id = resultEntity.Entity.Id;
@@ -68,20 +75,21 @@ namespace Orbital.Controllers
                 {
                     await HubContext.Clients.All.SendAsync(
                         Notifications.ScanStarted.ToString(), 
-                        new ScanResultWsMessage { Payload = payload, ScanResult = resultEntity.Entity });
-                    var result = await antivirusClient.Scan(new[] { payload.StoragePath });
+                        new ScanResultWsMessage { Payload = payload, Scan = resultEntity.Entity });
+                    var result = await antivirusClient.ScanAsync(new[] { payload.StoragePath });
                     // This controller only takes one payload so only one result
-                    resultEntity.Entity.IsFlagged = result[0].IsFlagged;
-                    resultEntity.Entity.IsDone = true;
+                    resultEntity.Entity.FlaggedState = result[0].FlaggedState;
+                    resultEntity.Entity.OperationState = OperationState.Done;
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Scanning with {Antivirus} failed : {ErrorMessage}", supportedAntivirus, ex.Message);
-                    resultEntity.Entity.IsError = true;
+                    resultEntity.Entity.OperationState = OperationState.Error;
+                    throw;
                 }
 
                 await orbitalContext.SaveChangesAsync();
-                await HubContext.Clients.All.SendAsync(Notifications.ScanDone.ToString(), new ScanResultWsMessage { Payload = payload, ScanResult = resultEntity.Entity });
+                await HubContext.Clients.All.SendAsync(Notifications.ScanDone.ToString(), new ScanResultWsMessage { Payload = payload, Scan = resultEntity.Entity });
             }
 
             Parallel.ForEach(scanPost.Antiviruses, ScanBody);

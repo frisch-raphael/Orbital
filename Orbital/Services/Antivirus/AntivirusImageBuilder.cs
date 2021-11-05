@@ -23,8 +23,6 @@ namespace Orbital.Services.Antivirus
     {
         private readonly IDockerClient DockerClient;
         private readonly ILogger<AntivirusImageBuilder> Logger;
-        protected string DockerFileDirectory { get; }
-        protected string Tag { get; }
 
         public AntivirusImageBuilder(
             IDockerClient dockerClient, ILogger<AntivirusImageBuilder> logger)
@@ -51,8 +49,8 @@ namespace Orbital.Services.Antivirus
         {
             if (await ExistsImage(name)) return;
 
-            using var dockerFileStream = CreateTarballForDockerfileDirectory(LocalPathes.DockerFilesDirectory + name.ToString());
-            using var responseStream = await DockerClient.Images
+            await using var dockerFileStream = CreateTarballForDockerfileDirectory(LocalPathes.DockerFilesDirectory + name.ToString());
+            await using var responseStream = await DockerClient.Images
                 .BuildImageFromDockerfileAsync(
                     dockerFileStream,
                     new ImageBuildParameters
@@ -78,7 +76,7 @@ namespace Orbital.Services.Antivirus
             foreach (var file in files)
             {
                 //Replacing slashes as KyleGobel suggested and removing leading /
-                string tarName = file.Substring(directory.Length).Replace('\\', '/').TrimStart('/');
+                var tarName = file[directory.Length..].Replace('\\', '/').TrimStart('/');
 
                 //Let's create the entry header
                 var entry = TarEntry.CreateTarEntry(tarName);

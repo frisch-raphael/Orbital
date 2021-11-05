@@ -36,11 +36,12 @@ namespace Orbital.Services
         public PayloadFileStorer(
             ILogger<PayloadFileStorer> logger,
             HammerWrapper hammerWrapper,
-            UploadedFile uploadedFile, IFunctionService functionService) : base(logger, uploadedFile)
+            UploadedFile uploadedFile, IFunctionService functionService, OrbitalContext orbitalContext) : base(logger, uploadedFile)
         {
             Logger = logger;
             HammerWrapper = hammerWrapper;
             FunctionService = functionService;
+            OrbitalContext = orbitalContext;
             //GetFunctions[PayloadType.AssemblyExecutable] = hammerWrapper.FetchFunctionsFromPdb;
             //GetFunctions[PayloadType.AssemblyLibrary] = hammerWrapper.FetchFunctionsFromPdb;
             //GetFunctions[PayloadType.NativeExecutable] = hammerWrapper.FetchFunctionsFromPdb;
@@ -63,7 +64,7 @@ namespace Orbital.Services
                 PayloadType = GetPayloadType()
             };
 
-            OrbitalContext.BackendPayloads.Add(payload);
+            OrbitalContext.Add(payload);
             OrbitalContext.SaveChanges();
             return payload;
 

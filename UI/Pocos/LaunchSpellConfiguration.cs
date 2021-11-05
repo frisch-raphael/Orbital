@@ -13,6 +13,7 @@ namespace Ui.Pocos
     {
         public List<SupportedAntivirus> Antiviruses { get; init; }
         public List<int> FunctionIds { get; init; }
+        public int NumberOfDockers { get; init; }
 
     }
 

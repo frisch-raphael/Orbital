@@ -1,5 +1,5 @@
 ﻿  
-FROM ubuntu:bionic AS backend
+FROM ubuntu:bionic
 
 RUN apt-get update && apt-get install wget -y
 

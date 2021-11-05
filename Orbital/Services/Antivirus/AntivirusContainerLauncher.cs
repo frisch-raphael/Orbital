@@ -57,10 +57,15 @@ namespace Orbital.Services.Antivirus
         {
 
             var containersToLaunch = await GetContainersAssociatedToImageName();
-            Parallel.ForEach(containersToLaunch, async container =>
-            {
-                var success = await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters());
-            });
+            await Parallel.ForEachAsync(
+                containersToLaunch, new ParallelOptions { MaxDegreeOfParallelism = 20 },
+                async (container, cancelToken) =>
+                {
+                    await DockerClient.Containers.StartContainerAsync(container.ID, new ContainerStartParameters(), cancelToken);
+                }
+            );
+
+
             return containersToLaunch;
         }
 
@@ -83,13 +88,13 @@ namespace Orbital.Services.Antivirus
                 });
         }
 
-        private string GenerateRandomName()
+        private static string GenerateRandomName()
         {
-            var chars = "abcdefghijklmnopqrstuvwxyz";
+            const string chars = "abcdefghijklmnopqrstuvwxyz";
             var stringChars = new char[6];
             var random = new Random();
 
-            for (int i = 0; i < stringChars.Length; i++)
+            for (var i = 0; i < stringChars.Length; i++)
             {
                 stringChars[i] = chars[random.Next(chars.Length)];
             }
@@ -101,9 +106,9 @@ namespace Orbital.Services.Antivirus
         {
             Logger.LogInformation($"Creating {numberOfContainerToCreate} container(s)");
 
-            for (int i = 0; i < numberOfContainerToCreate; i++)
+            for (var i = 0; i < numberOfContainerToCreate; i++)
             {
-                CreateContainerResponse response = await DockerClient.Containers.CreateContainerAsync(
+                var response = await DockerClient.Containers.CreateContainerAsync(
                         new CreateContainerParameters
                         {
                             Image = ParentImageName,
@@ -137,10 +142,15 @@ namespace Orbital.Services.Antivirus
                     }
                 });
 
-            Parallel.ForEach(containersToDelete, async container =>
-            {
-                await DockerClient.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters());
-            });
+
+            await Parallel.ForEachAsync(
+                containersToDelete, new ParallelOptions { MaxDegreeOfParallelism = 20 },
+                async (container, cancelToken) =>
+                {
+                    await DockerClient.Containers.StopContainerAsync(container.ID, new ContainerStopParameters(), cancelToken);
+                    await DockerClient.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters(), cancelToken);
+                }
+            );
         }
 
     }

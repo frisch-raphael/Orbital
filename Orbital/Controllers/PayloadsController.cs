@@ -93,14 +93,15 @@ namespace Orbital.Controllers
                     filePoco.TrustedFileName, ex.Message);
 
                 // ReSharper disable once InvertIf
-                if (System.IO.File.Exists(filePoco.StorageFullPath))
+                if (System.IO.File.Exists(filePoco.StorageFullPath)) 
                 {
                     // cleaning the file
                     Logger.LogInformation("Cleaning {FileName}", filePoco.TrustedFileName);
                     payloadFileStorer.RollStorageBack();
 
                 }
-                return StatusCode(StatusCodes.Status500InternalServerError, new InternalServerError("Error while trying to upload file"));
+                return StatusCode(StatusCodes.Status500InternalServerError, new InternalServerError(
+                    $"Error while trying to upload file. {ex.Message}")); 
             }
 
             var resourcePath = new Uri($"{Request.Scheme}://{Request.Host}/Payloads/{createdPayload.Id}");

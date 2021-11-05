@@ -12,10 +12,10 @@ namespace Orbital.Services.AntivirusBackends
         {
             public override string BinaryPath { get; } = "echo";
 
-            public override string PayloadPathArg { get; } = "orbital";
+            public override string PayloadPathArg { get; } = "";
             public override List<string> OtherArgs { get; } = new List<string>();
 
-            public override Regex OutputParser { get; } = new Regex("orbital");
+            public override Regex OutputParser { get; } = new Regex("");
         }
     }
 

@@ -13,7 +13,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\BackendPayload.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\DissectionPost.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\ScanPost.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ScanResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerResponses\Dissection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\SubPayload.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\FlaggedState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Enums\OperationState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerResponses\Scan.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\WebSocketMessages\DissectionResultWsMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\WebSocketMessages\ScanResultWsMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\Notifications.cs" />
@@ -35,8 +39,5 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Resource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Dtos\ControllerResponses\" />
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Docker.DotNet.Models;
 using Microsoft.Extensions.Logging;
 using Orbital.Factories;
+using Orbital.Pocos;
 using Orbital.Services.Antivirus;
 using Shared.Dtos;
 using Shared.Enums;
@@ -40,7 +41,7 @@ namespace Orbital.Services.Antivirus
         }
 
 
-        public async Task<List<ScanResult>> Scan(string[] payloadsFileName, int maxNumberOfDockerContainer = 10)
+        public async Task<List<ScanResult>> ScanAsync(string[] payloadsFileName, int maxNumberOfDockerContainer = 10)
         {
             Logger.LogInformation($"Setup for {Antivirus} started");
             await ImageBuilder.Build(Antivirus);
@@ -49,7 +50,7 @@ namespace Orbital.Services.Antivirus
             return await Scanner.LaunchScans(payloadsFileName, containers);
         }
 
-        public int GetNumberOfDocker(int maxNumberOfDockerContainer, int numberOfFileToScan)
+        private static int GetNumberOfDocker(int maxNumberOfDockerContainer, int numberOfFileToScan)
         {
             return numberOfFileToScan >= maxNumberOfDockerContainer ? maxNumberOfDockerContainer : numberOfFileToScan;
         }

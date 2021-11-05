@@ -44,8 +44,8 @@ namespace Ui.Services
                 $"Status code is {httpErrorResponse.StatusCode}";
 
 
-                var method = httpErrorResponse.RequestMessage.Method;
-                var localPath = httpErrorResponse.RequestMessage.RequestUri.LocalPath;
+                var method = httpErrorResponse.RequestMessage?.Method;
+                var localPath = httpErrorResponse.RequestMessage?.RequestUri?.LocalPath;
 
 
             Logger.LogWarning(

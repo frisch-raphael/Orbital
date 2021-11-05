@@ -134,7 +134,7 @@
                 {
                     FunctionIds = launchSpellConfiguration.FunctionIds,
                     SupportedAntivirus = launchSpellConfiguration.Antiviruses[0],
-                    NumberOfDocker = 30,
+                    NumberOfDocker = launchSpellConfiguration.NumberOfDockers,
                     PayloadId = SelectedPayload.Id
                 };
                 await OrbitalHttpClient.PostToOrbital(SelectedOrbitalScan.Endpoint, dissectionPost);

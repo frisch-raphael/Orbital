@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Orbital.Pocos;
 using Shared.Dtos;
+using Shared.Pocos;
 
 namespace Orbital.Model
 {
@@ -36,6 +37,7 @@ namespace Orbital.Model
 
         public DbSet<BackendPayload> BackendPayloads { get; set; }
         public DbSet<Function> Functions { get; set; }
-        public DbSet<ScanResult> ScanResults { get; set; }
+        public DbSet<Scan> ScanResults { get; set; }
+        public DbSet<Dissection> DissectResults { get; set; }
     }
 }

@@ -5,7 +5,7 @@ namespace Shared.ControllerResponses.Dtos
 {
     public class ScanResultWsMessage
     {
-        public ScanResult ScanResult { get; set; }
+        public Scan Scan { get; set; }
         public Payload Payload { get; set; }
 
     }

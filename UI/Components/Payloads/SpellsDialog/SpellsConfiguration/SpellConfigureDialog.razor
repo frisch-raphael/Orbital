@@ -8,15 +8,26 @@
 
         @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.AntivirusToUse) == true)
         {
-            <MatH6>Choose the antivirus</MatH6>
+            <MatH6>Choose the antivirus</MatH6>            
             <MatSelectItem @bind-Value="ChosenAntivirus" Items="@Antiviruses" Label="Antivirus">
             </MatSelectItem>
         }
+        @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.NumberOfDockers) == true)
+        {
+            <MatH6>Choose the max number of Docker to launch</MatH6>
+            <MatNumericUpDownField Label="Number of Dockers"
+                                   @bind-Value=@NumberOfDockers
+                                   DecimalPlaces=0
+                                   Minimum=0 Maximum=100>
+            </MatNumericUpDownField>
+        }
+
         @if (SpellToLaunch?.ConfigurationNeeded.Contains(Enums.SpellConfiguration.FunctionsToScan) == true)
         {
             <MatH6>Choose the functions to scan</MatH6>
         <FilesConfigure UpdateFunctionIds="(ids) => SelectedFunctionIds = ids" SelectedPayload="SelectedPayload"></FilesConfigure>
         }
+
 
     </MatDialogContent>
     <MatDialogActions>
@@ -37,7 +48,9 @@
     [Parameter]
     public bool IsSpellDialogOpen { get; set; }
 
-    public SupportedAntivirus ChosenAntivirus { get; set; }
+    public SupportedAntivirus ChosenAntivirus { get; set; }    
+    
+    public int NumberOfDockers { get; set; }
 
     [Parameter]
     public OrbitalScan SpellToLaunch { get; set; }
@@ -58,7 +71,8 @@
         await OnConfigured.InvokeAsync(new LaunchSpellConfiguration()
         {
             Antiviruses = new List<SupportedAntivirus>() { ChosenAntivirus }, 
-            FunctionIds = SelectedFunctionIds
+            FunctionIds = SelectedFunctionIds,
+            NumberOfDockers = NumberOfDockers
         });
     }
 

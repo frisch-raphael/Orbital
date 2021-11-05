@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using AsyncAwaitBestPractices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Orbital.Classes;
 using Orbital.Factories;
 using Orbital.Model;
+using Orbital.Pocos;
+using Orbital.Services.Antivirus;
 using Shared.ControllerResponses.Dtos;
 using Shared.Dtos;
 using Shared.Enums;
+using Shared.Pocos;
 
 namespace Orbital.Controllers
 {
@@ -21,7 +26,7 @@ namespace Orbital.Controllers
     [ApiController]
     public class DissectionsController : ControllerBase
     {
-        private AntivirusClientFactory AntivirusesClientFactory;
+        private readonly AntivirusClientFactory AntivirusesClientFactory;
         private readonly OrbitalContext OrbitalContext;
         private readonly IPayloadDividerFactory PayloadDividerFactory;
         private readonly IServiceScopeFactory ServiceScopeFactory;
@@ -48,89 +53,86 @@ namespace Orbital.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<List<ScanResult>>> Post(
+        public async Task<ActionResult<List<Scan>>> Post(
             [Required] DissectionPost dissectionPost)
         {
             var payload = OrbitalContext.BackendPayloads.Single(p => p.Id == dissectionPost.PayloadId);
-            await OrbitalContext.Entry(payload)
-                .Collection(p => p.Functions)
-                .LoadAsync();
-
-            PayloadDividerFactory.Create(payload).Divide(dissectionPost.FunctionIds);
 
             await HubContext.Clients.All.SendAsync(
                 Notifications.DissectionStarted.ToString(),
                 new DissectionResultWsMessage { Payload = payload });
 
-
-            return Ok();
-            //var scanTasks = new List<Task<List<ScanResult>>>();
-
-            //foreach (var antivirus in scanPost.Antiviruses)
-            //{
-
-            //    var antivirusClient = AntivirusesClientFactory.Create(antivirus);
-            //    scanTasks.Add(antivirusClient.Scan(new string[] { payload.StoragePath }));
-            //}
-
-            //await Task.WhenAll(scanTasks);
-            //await scanPost.Antiviruses.ForEachAsync(20, async antivirus =>
-            //{
-            //    var antivirusClient = AntivirusesClientFactory.Create(antivirus);
-            //    result = await antivirusClient.Scan(new string[] { payload.StorageName });
-            //});
-
-            //    Parallel.ForEach(scanPost.Antiviruses, async supportedAntivirus =>
-            //    {
-
-            //        using var scope = ServiceScopeFactory.CreateScope();
-            //        var orbitalContext = scope.ServiceProvider.GetRequiredService<OrbitalContext>();
-
-            //        var antivirusClient = AntivirusesClientFactory.Create(supportedAntivirus);
-            //        var initialResult = new ScanResult()
-            //        {
-            //            Antivirus = supportedAntivirus,
-            //            PayloadId = payload.Id,
-            //            ScanDate = DateTime.Now
-            //        };
-
-            //        var resultEntity = orbitalContext.ScanResults.Add(initialResult);
-            //        initialResult.Id = resultEntity.Entity.Id;
-            //        initialResults.Add(initialResult);
-            //        await orbitalContext.SaveChangesAsync();
+            await OrbitalContext.Entry(payload)
+                .Collection(p => p.Functions)
+                .LoadAsync();
 
 
-            //        try
-            //        {
-            //            await HubContext.Clients.All.SendAsync(
-            //                Notifications.ScanStarted.ToString(),
-            //                new ScanResultWSMessage { Payload = payload, ScanResult = resultEntity.Entity });
-            //            var result = await antivirusClient.Scan(new string[] { payload.StoragePath });
-            //            // This controller only takes one payload so only one result
-            //            resultEntity.Entity.IsFlagged = result[0].IsFlagged;
-            //            resultEntity.Entity.isDone = true;
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            Logger.LogError("Scanning with {Antivirus} failed : {ErrorMessage}", supportedAntivirus, ex.Message);
-            //            resultEntity.Entity.isError = true;
-            //        }
+                
+            var resourcePath = new Uri($"{Request.Scheme}://{Request.Host}/");
+            var initialResult = StoreInitDissectResultInDb(dissectionPost);
+            Dissect(dissectionPost, payload, initialResult).SafeFireAndForget();
+            return new CreatedResult(resourcePath, initialResult);
 
-            //        await orbitalContext.SaveChangesAsync();
-            //        await HubContext.Clients.All.SendAsync(
-            //            Notifications.ScanDone.ToString(),
-            //            new ScanResultWSMessage { Payload = payload, ScanResult = resultEntity.Entity });
+        }
 
-            //    });
+        private async Task Dissect(DissectionPost dissectionPost, BackendPayload payload, EntityEntry<Dissection> initialResult)
+        {
 
-            //    var resourcePath = new Uri($"{Request.Scheme}://{Request.Host}/");
-            //    //var scanControllerResponses = scanTasks.Select(st => new ScanResponse()
-            //    //{
-            //    //    Antivirus = st.Result[0].Antivirus,
-            //    //    IsFlagged = st.Result[0].IsFlagged
+            using var scope = ServiceScopeFactory.CreateScope();
+            var orbitalContext = scope.ServiceProvider.GetRequiredService<OrbitalContext>();
 
-            //    //});
-            //    return new CreatedResult(resourcePath, initialResults);
+            try
+            {
+
+                var antivirusClient = AntivirusesClientFactory.Create(dissectionPost.SupportedAntivirus);
+                // var divideResults = await PayloadDividerFactory.Create(payload).Divide(dissectionPost.FunctionIds);
+                var divideResults = await PayloadDividerFactory.Create(payload).DivideInHalf();
+                var subPayloadPathes = divideResults.Select(d => d.SubPayloadFullPath);
+                var rawScanResults = await antivirusClient.ScanAsync(subPayloadPathes.ToArray(), dissectionPost.NumberOfDocker);
+                var subPayloadScanResults = rawScanResults.Select(rawScanResult => new SubPayloadScanResult()
+                {
+
+                    FlaggedState = rawScanResult.FlaggedState,
+                    ScanState = rawScanResult.IsError ? OperationState.Error : OperationState.Done,
+                    SubPayload = new SubPayload()
+                    {
+                        Functions = divideResults
+                            .Single(d => d.SubPayloadFullPath == rawScanResult.FilePath)
+                            .FunctionIds
+                            .Select(f1Id => orbitalContext.Functions.Single(f2 => f1Id == f2.Id)).ToList(),
+                        StorageFullPath = rawScanResult.FilePath
+
+                    }
+
+                });
+                initialResult.Entity.SubPayloadScanResult = subPayloadScanResults.ToList();
+                orbitalContext.DissectResults.Update(initialResult.Entity);
+                initialResult.Entity.DissectionState = OperationState.Done;
+                await orbitalContext.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                Logger.LogError("Error while dissecting payload");
+                initialResult.Entity.DissectionState = OperationState.Error;
+                await orbitalContext.SaveChangesAsync();
+                throw;
+            }
+
+        }
+
+        private EntityEntry<Dissection> StoreInitDissectResultInDb(DissectionPost dissectionPost)
+        {
+            var initialResult = new Dissection() 
+                { 
+                    Antivirus = dissectionPost.SupportedAntivirus, 
+                    PayloadId = dissectionPost.PayloadId, 
+                    ScanDate = DateTime.Now,
+                    DissectionState = OperationState.Ongoing
+                    
+                };
+            var dissectEntity = OrbitalContext.DissectResults.Add(initialResult);
+            OrbitalContext.SaveChangesAsync();
+            return dissectEntity;
         }
     }
 }
