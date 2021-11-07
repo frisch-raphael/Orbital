@@ -86,7 +86,7 @@ namespace Orbital.Controllers
 
                 var antivirusClient = AntivirusesClientFactory.Create(dissectionPost.SupportedAntivirus);
                 // var divideResults = await PayloadDividerFactory.Create(payload).Divide(dissectionPost.FunctionIds);
-                var divideResults = await PayloadDividerFactory.Create(payload).DivideInHalf();
+                var divideResults = await PayloadDividerFactory.Create(payload).DivideInN(2);
                 var subPayloadPathes = divideResults.Select(d => d.SubPayloadFullPath);
                 var rawScanResults = await antivirusClient.ScanAsync(subPayloadPathes.ToArray(), dissectionPost.NumberOfDocker);
                 var subPayloadScanResults = rawScanResults.Select(rawScanResult => new SubPayloadScanResult()

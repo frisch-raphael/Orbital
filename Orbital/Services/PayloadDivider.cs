@@ -26,37 +26,31 @@ namespace Orbital.Services
         private List<DivideResult> DivideResults { get; } = new();
 
 
-        public async Task<List<DivideResult>> DivideInHalf()
+        // this is temporary
+        public async Task<List<DivideResult>> DivideInN(int numberOfParts)
         {
-            var firstHalfPath = LocalPathes.UploadDirectory + "firstHalf.raw";
-            var secondHalfPath = LocalPathes.UploadDirectory + "secondHalf.raw";
+            for (var i = 0; i < numberOfParts; i++)
+            {
+                var partPath = $"{LocalPathes.UploadDirectory}part_{i}.raw";
+                var payloadPartStream = new FileStream(BackendPayload.StoragePath, FileMode.Open, FileAccess.Read);
 
-            var payloadStream = new FileStream(BackendPayload.StoragePath, FileMode.Open, FileAccess.Read);
+                var offset = i * (payloadPartStream.Length / numberOfParts);
 
-            var firstHalfBytes = await ExtractBytesFromFile(payloadStream.Length / 2, 0, payloadStream);
-            var secondHalfBytes = await ExtractBytesFromFile(payloadStream.Length / 2, payloadStream.Length / 2, payloadStream);
+                var partBytes = await ExtractBytesFromFile(payloadPartStream.Length / numberOfParts, offset, payloadPartStream);
+                await using var partPayloadStream =  new FileStream(partPath, FileMode.Create, FileAccess.Write);
+                await partPayloadStream.WriteAsync(partBytes);
 
-            await using var firstHalfPayloadStream =  new FileStream(firstHalfPath, FileMode.Create, FileAccess.Write);
-            await using var secondHalfPayloadStream =  new FileStream(firstHalfPath, FileMode.Create, FileAccess.Write);
+                DivideResults.Add(
+                    new DivideResult
+                    {
+                        FunctionIds = new List<int> { },
+                        SubPayloadFullPath = partPath
+                    });
 
-            await firstHalfPayloadStream.WriteAsync(firstHalfBytes);
-            await secondHalfPayloadStream.WriteAsync(secondHalfBytes);
 
-            DivideResults.Add(
-                new DivideResult
-                {
-                    FunctionIds = new List<int> { },
-                    SubPayloadFullPath = firstHalfPath
-                });
-
-            DivideResults.Add(
-                new DivideResult
-                {
-                    FunctionIds = new List<int> { },
-                    SubPayloadFullPath = secondHalfPath
-                });
-
+            }
             return DivideResults;
+
         }
 
 
