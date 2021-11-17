@@ -13,7 +13,7 @@ namespace Orbital.Factories
 {
     public interface IAntivirusContainerLauncherFactory
     {
-        AntivirusContainerLauncher Create(SupportedAntivirus supportedAntivirus);
+        IAntivirusContainerLauncher Create(SupportedAntivirus supportedAntivirus);
     }
 
     public class AntivirusContainerLauncherFactory : IAntivirusContainerLauncherFactory
@@ -28,7 +28,7 @@ namespace Orbital.Factories
             Logger = logger;
         }
 
-        public AntivirusContainerLauncher Create(SupportedAntivirus supportedAntivirus)
+        public IAntivirusContainerLauncher Create(SupportedAntivirus supportedAntivirus)
         {
             return new AntivirusContainerLauncher(
                 DockerClientConf,

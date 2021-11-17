@@ -13,7 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\BackendPayload.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\DissectionPost.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerParameters\ScanPost.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerResponses\Dissection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Dtos\ControllerResponses\FunctionsDissection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Dtos\SubPayload.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\FlaggedState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Enums\OperationState.cs" />

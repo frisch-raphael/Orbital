@@ -8,7 +8,7 @@ namespace Orbital.Factories
 {
     public interface IScannerServiceFactory
     {
-        ScannerService Create(SupportedAntivirus supportedAntivirus);
+        IScannerService Create(SupportedAntivirus supportedAntivirus);
     }
 
     public class ScannerServiceFactory : IScannerServiceFactory
@@ -16,23 +16,23 @@ namespace Orbital.Factories
         private DockerClientConfiguration DockerClientConf { get; set; }
         public ILogger<ScannerService> Logger { get; }
 
-        private readonly IAntivirusBackendFactory antivirusBackendFactory;
+        private readonly IAntivirusBackendFactory AntivirusBackendFactory;
 
         public ScannerServiceFactory(
             DockerClientConfiguration dockerClientConf, ILogger<ScannerService> logger, IAntivirusBackendFactory antivirusBackendFactory)
         {
             DockerClientConf = dockerClientConf;
             Logger = logger;
-            this.antivirusBackendFactory = antivirusBackendFactory;
+            this.AntivirusBackendFactory = antivirusBackendFactory;
         }
 
-        public ScannerService Create(SupportedAntivirus supportedAntivirus)
+        public IScannerService Create(SupportedAntivirus supportedAntivirus)
         {
             return new ScannerService(
                 DockerClientConf,
                 Logger,
                 supportedAntivirus,
-                antivirusBackendFactory);
+                AntivirusBackendFactory);
         }
     }
 }

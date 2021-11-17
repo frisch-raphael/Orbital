@@ -15,7 +15,7 @@ namespace Shared.Dtos
     }
 
 
-    public class Dissection
+    public class FunctionsDissection
     {
         public int Id { get; set; }
         public int PayloadId { get; set; }

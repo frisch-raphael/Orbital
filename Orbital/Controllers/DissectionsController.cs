@@ -75,7 +75,7 @@ namespace Orbital.Controllers
 
         }
 
-        private async Task Dissect(DissectionPost dissectionPost, BackendPayload payload, EntityEntry<Dissection> initialResult)
+        private async Task Dissect(DissectionPost dissectionPost, BackendPayload payload, EntityEntry<FunctionsDissection> initialResult)
         {
 
             using var scope = ServiceScopeFactory.CreateScope();
@@ -120,9 +120,9 @@ namespace Orbital.Controllers
 
         }
 
-        private EntityEntry<Dissection> StoreInitDissectResultInDb(DissectionPost dissectionPost)
+        private EntityEntry<FunctionsDissection> StoreInitDissectResultInDb(DissectionPost dissectionPost)
         {
-            var initialResult = new Dissection() 
+            var initialResult = new FunctionsDissection() 
                 { 
                     Antivirus = dissectionPost.SupportedAntivirus, 
                     PayloadId = dissectionPost.PayloadId, 

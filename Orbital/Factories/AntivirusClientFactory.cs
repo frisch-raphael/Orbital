@@ -6,7 +6,7 @@ namespace Orbital.Factories
 {
     public interface IAntivirusClientFactory
     {
-        AntivirusClient Create(SupportedAntivirus supportedAntivirus);
+        IAntivirusClient Create(SupportedAntivirus supportedAntivirus);
     }
 
     public class AntivirusClientFactory : IAntivirusClientFactory
@@ -28,7 +28,7 @@ namespace Orbital.Factories
             ScannerFactory = scannerFactory;
         }
 
-        public AntivirusClient Create(SupportedAntivirus supportedAntivirus)
+        public IAntivirusClient Create(SupportedAntivirus supportedAntivirus)
         {
             return new AntivirusClient(
                 ImageBuilder,

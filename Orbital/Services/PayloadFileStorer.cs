@@ -72,9 +72,17 @@ namespace Orbital.Services
 
         private List<Function> GetFunctions(PayloadType payloadType)
         {
-            // for now functions from all payload types are extracted from pdb
+            // for now only pe with pdb supported
             if (payloadType == PayloadType.Other) return new List<Function>();
-            var marshalledFunctions = HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath);
+            var marshalledFunctions = new List<MarshalledFunction>();
+            try
+            {
+                marshalledFunctions = HammerWrapper.FetchFunctionsFromPdb(UploadedFile.StorageFullPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex.Message + ". 'Dissection' spell won't be supported.");
+            }
 
 
             var functions = marshalledFunctions.Select(marshalledFunction =>

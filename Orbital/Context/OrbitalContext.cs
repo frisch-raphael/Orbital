@@ -38,6 +38,6 @@ namespace Orbital.Model
         public DbSet<BackendPayload> BackendPayloads { get; set; }
         public DbSet<Function> Functions { get; set; }
         public DbSet<Scan> ScanResults { get; set; }
-        public DbSet<Dissection> DissectResults { get; set; }
+        public DbSet<FunctionsDissection> DissectResults { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace Orbital.Services.Antivirus
 
     public interface IAntivirusClient
     {
-
+        Task<List<ScanResult>> ScanAsync(string[] payloadsFileName, int maxNumberOfDockerContainer = 10);
     }
 
     public class AntivirusClient : IAntivirusClient

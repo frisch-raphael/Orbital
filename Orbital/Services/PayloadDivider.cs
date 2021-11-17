@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using AsmResolver.PE.File;
 using Microsoft.Extensions.Logging;
 using Orbital.Pocos;
 using Orbital.Static;
@@ -12,7 +12,12 @@ using Shared.Dtos;
 
 namespace Orbital.Services
 {
-    public class PayloadDivider
+    public interface IPayloadDivider
+    {
+        Task<List<DivideResult>> Divide(List<int> idsOfFunctionsInScope, int dividePayloadBy);
+    }
+
+    public class PayloadDivider : IPayloadDivider
     {
         private readonly BackendPayload BackendPayload;
         private readonly ILogger<PayloadDivider> Logger;
@@ -29,6 +34,7 @@ namespace Orbital.Services
         // this is temporary
         public async Task<List<DivideResult>> DivideInN(int numberOfParts)
         {
+
             for (var i = 0; i < numberOfParts; i++)
             {
                 var partPath = $"{LocalPathes.UploadDirectory}part_{i}.raw";
@@ -53,8 +59,17 @@ namespace Orbital.Services
 
         }
 
+        // public async Task<List<DivideResult>> DivideSection()
+        // {
+        //     var peFile = PEFile.FromFile(BackendPayload.StoragePath);;
+        //     foreach (var section in peFile.Sections)
+        //     {
+        //         Console.WriteLine(section.Name);
+        //     }
+        // }
 
-        public async Task<List<DivideResult>> Divide(List<int> idsOfFunctionsInScope)
+
+        public async Task<List<DivideResult>> Divide(List<int> idsOfFunctionsInScope, int dividePayloadBy)
         {
             Logger.LogInformation("Starting to Divide {PayloadName}", BackendPayload.FileName);
 

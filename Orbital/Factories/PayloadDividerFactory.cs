@@ -8,7 +8,7 @@ namespace Orbital.Factories
     public interface IPayloadDividerFactory
     {
         ILogger<PayloadDivider> Logger { get; }
-        PayloadDivider Create(BackendPayload payload);
+        IPayloadDivider Create(BackendPayload payload);
     }
 
     public class PayloadDividerFactory : IPayloadDividerFactory
@@ -20,7 +20,7 @@ namespace Orbital.Factories
             Logger = logger;
         }
 
-        public PayloadDivider Create(BackendPayload payload)
+        public IPayloadDivider Create(BackendPayload payload)
         {
             return new PayloadDivider(Logger, payload);
         }
