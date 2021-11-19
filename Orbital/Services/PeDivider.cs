@@ -12,52 +12,50 @@ using Shared.Dtos;
 
 namespace Orbital.Services
 {
-    public interface IPayloadDivider
+    public interface IPeDivider
     {
-        Task<List<DivideResult>> Divide(List<int> idsOfFunctionsInScope, int dividePayloadBy);
+        Task<List<DivideResult>> Divide(string pathToPe, List<Function> functionsInPe, int dividePayloadBy);
     }
 
-    public class PayloadDivider : IPayloadDivider
+    public class PeDivider : IPeDivider
     {
-        private readonly BackendPayload BackendPayload;
-        private readonly ILogger<PayloadDivider> Logger;
+        private readonly ILogger<PeDivider> Logger;
 
-        public PayloadDivider(ILogger<PayloadDivider> logger, BackendPayload backendPayload)
+        public PeDivider(ILogger<PeDivider> logger)
         {
             Logger = logger;
-            BackendPayload = backendPayload;
         }
 
         private List<DivideResult> DivideResults { get; } = new();
 
 
         // this is temporary
-        public async Task<List<DivideResult>> DivideInN(int numberOfParts)
-        {
-
-            for (var i = 0; i < numberOfParts; i++)
-            {
-                var partPath = $"{LocalPathes.UploadDirectory}part_{i}.raw";
-                var payloadPartStream = new FileStream(BackendPayload.StoragePath, FileMode.Open, FileAccess.Read);
-
-                var offset = i * (payloadPartStream.Length / numberOfParts);
-
-                var partBytes = await ExtractBytesFromFile(payloadPartStream.Length / numberOfParts, offset, payloadPartStream);
-                await using var partPayloadStream =  new FileStream(partPath, FileMode.Create, FileAccess.Write);
-                await partPayloadStream.WriteAsync(partBytes);
-
-                DivideResults.Add(
-                    new DivideResult
-                    {
-                        FunctionIds = new List<int> { },
-                        SubPayloadFullPath = partPath
-                    });
-
-
-            }
-            return DivideResults;
-
-        }
+        // public async Task<List<DivideResult>> DivideInN(int numberOfParts)
+        // {
+        //
+        //     for (var i = 0; i < numberOfParts; i++)
+        //     {
+        //         var partPath = $"{LocalPathes.UploadDirectory}part_{i}.raw";
+        //         var payloadPartStream = new FileStream(BackendPayload.StoragePath, FileMode.Open, FileAccess.Read);
+        //
+        //         var offset = i * (payloadPartStream.Length / numberOfParts);
+        //
+        //         var partBytes = await ExtractBytesFromFile(payloadPartStream.Length / numberOfParts, offset, payloadPartStream);
+        //         await using var partPayloadStream =  new FileStream(partPath, FileMode.Create, FileAccess.Write);
+        //         await partPayloadStream.WriteAsync(partBytes);
+        //
+        //         DivideResults.Add(
+        //             new DivideResult
+        //             {
+        //                 FunctionIds = new List<int> { },
+        //                 SubPayloadFullPath = partPath
+        //             });
+        //
+        //
+        //     }
+        //     return DivideResults;
+        //
+        // }
 
         // public async Task<List<DivideResult>> DivideSection()
         // {
@@ -69,15 +67,14 @@ namespace Orbital.Services
         // }
 
 
-        public async Task<List<DivideResult>> Divide(List<int> idsOfFunctionsInScope, int dividePayloadBy)
+        public async Task<List<DivideResult>> Divide(string pathToPe, List<Function> functionsInPe, int dividePayloadBy)
         {
-            Logger.LogInformation("Starting to Divide {PayloadName}", BackendPayload.FileName);
+            Logger.LogInformation("Starting to Divide {PePath}", pathToPe);
 
-            var functionsInScope = BackendPayload.Functions.Where(f => idsOfFunctionsInScope.Contains(f.Id)).ToList();
 
 
             await Parallel.ForEachAsync(
-                functionsInScope,
+                functionsInPe,
                 new ParallelOptions { MaxDegreeOfParallelism = 20 },
                 (function, _) => ExtractAndStoreSubPayload(
                     function,
@@ -98,8 +95,7 @@ namespace Orbital.Services
                                       throw new InvalidOperationException());
             var functionBytes = await ExtractBytesFromFile(function.Length, function.Offset, payloadStream);
 
-            await using var subPayloadStream =
-                new FileStream(subPayloadFullPath, FileMode.Create, FileAccess.Write);
+            await using var subPayloadStream = new FileStream(subPayloadFullPath, FileMode.Create, FileAccess.Write);
             await subPayloadStream.WriteAsync(functionBytes);
 
             DivideResults.Add(

@@ -23,45 +23,71 @@ namespace Orbital.Services
     public class FunctionsDissecter 
     {
         private readonly ILogger<FunctionsDissecter> Logger;
-        private readonly BackendPayload Payload;
-        private readonly IPayloadDivider PayloadDivider;
-        private readonly IAntivirusClientFactory AntivirusClientFactory;
+        private readonly IPeDivider PeDivider;
+        private readonly IAntivirusClient AntivirusClient;
+        private int NumberOfDockers { get; set;}
+        private BackendPayload Payload { get; set;}
+        private int NumberToDividePayloadBy => Payload.Functions.Count > 6 ? 6 : Payload.Functions.Count;
+
         public FunctionsDissecter(
             ILogger<FunctionsDissecter> logger, 
             BackendPayload payload, 
             IPayloadDividerFactory payloadDividerFactory, 
-            IAntivirusClientFactory antivirusClientFactory)
+            IAntivirusClient antivirusClient, 
+            int numberOfDockers)
         {
             Logger = logger;
             Payload = payload;
-            AntivirusClientFactory = antivirusClientFactory;
-            PayloadDivider = payloadDividerFactory.Create(payload);
+            AntivirusClient = antivirusClient;
+            NumberOfDockers = numberOfDockers;
+            PeDivider = payloadDividerFactory.Create(payload);
             ClearRDataSection();
         }
 
 
-        public async Task<FunctionsDissection> Dissect(
-            BackendPayload payload, 
-            List<int> idsOfFunctionsInScope, 
-            SupportedAntivirus antivirus,
-            int numberOfDockers, 
+
+        public async Task<FunctionsDissection> Dissect(List<int> functionsToDissectIds)
+        {
+            var functionsDissection = new FunctionsDissection()
+            {
+                Antivirus = AntivirusClient.Antivirus,
+                DissectionState = OperationState.Ongoing,
+                PayloadId = Payload.Id,
+                ScanDate = DateTime.Now
+            };
+            functionsDissection.SubPayloadScanResultRoots = await ScanSubPayloads(functionsToDissectIds);
+            return functionsDissection;
+        }
+
+        private async Task<List<SubPayloadScanResult>> ScanSubPayloads( 
+            List<int> functionsToDissectIds, 
             int recursionLevel = 0)
         {
             if (recursionLevel == 0)
             {
 
             }
-            var antivirusClient = AntivirusClientFactory.Create(antivirus);
+            var functionsToDissect = Payload.Functions.Where(f => functionsToDissectIds.Contains(f.Id)).ToList();
 
-            var divideResults = await PayloadDivider.Divide(idsOfFunctionsInScope, numberOfDockers);
+            var divideResults = await PeDivider.Divide(Payload.StoragePath, functionsToDissect, NumberToDividePayloadBy);
             var subPayloadPathes = divideResults.Select(d => d.SubPayloadFullPath);
-            var rawScanResults = await antivirusClient.ScanAsync(subPayloadPathes.ToArray(), numberOfDockers);
-
+            var rawScanResults = await AntivirusClient.ScanAsync(subPayloadPathes.ToArray(), NumberOfDockers);
+            foreach (var divideResult in divideResults)
+            {
+                if (GetCorrespondingScanResult(divideResult, rawScanResults).FlaggedState == FlaggedState.Negative) break;
+                await ScanSubPayloads(divideResult.FunctionIds, recursionLevel + 1);
+            }
         }
 
+        private static ScanResult GetCorrespondingScanResult(DivideResult divideResult, List<ScanResult> scanResults)
+        {
+            return scanResults.First(s => s.FilePath == divideResult.SubPayloadFullPath);
+        }
 
-        private void ClearRDataSection()
+        private static void ClearRDataSection()
         {
             throw new NotImplementedException();
         }
+
+  
 }
