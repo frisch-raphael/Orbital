@@ -8,7 +8,7 @@ namespace Shared.Dtos
     public class SubPayloadScanResult 
     {
         public int Id { get; set; }
-        public List<SubPayloadScanResult> SubPayloadScanResultChild {get; set;}
+        public List<SubPayloadScanResult> SubPayloadScanResultChildren {get; set;}
         public SubPayload SubPayload { get; set; }
         public OperationState ScanState { get; set; }
         public FlaggedState FlaggedState { get; set; }

@@ -25,7 +25,7 @@ namespace Orbital.Services
                 Name = marshalledFunction.name,
                 File = marshalledFunction.file,
                 FirstLine = marshalledFunction.first_line,
-                Offset = PeFunctionOffsetGetter.GetOffsetFromRva(marshalledFunction.virtual_adress, pathToPayload),
+                Offset = PeFunctionOffsetGetter.GetRawOffsetFromRva(marshalledFunction.virtual_adress, pathToPayload),
                 Length = marshalledFunction.length
             };
         }

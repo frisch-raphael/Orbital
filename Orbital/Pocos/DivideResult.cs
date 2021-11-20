@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Shared.Dtos;
 
 namespace Orbital.Pocos
 {
@@ -9,7 +10,7 @@ namespace Orbital.Pocos
         /// The functions contained in the subPayload<br></br>
         /// For now one subPayload = one function
         /// </summary>
-        public List<int> FunctionIds { get; set; }
+        public List<Function> Functions { get; set; }
         /// <summary>
         /// The path to the subPayload
         /// </summary>
